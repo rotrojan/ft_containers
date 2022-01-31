@@ -6,14 +6,13 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/01/28 19:06:05 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/01/31 21:50:53 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 # include <memory>
-# include <iterator>
 
 namespace ft {
 
@@ -36,33 +35,88 @@ namespace ft {
 					return (*this);
 				};
 				VectorIterator	operator++(int) {
-					Vector tmp = this->_ptr;
+					VectorIterator tmp = this->_ptr;
 					++this->_ptr;
 					return (tmp);
 				};
-				bool operator==(VectorIterator const *rhs) {
-					if (this->_ptr == rhs._ptr)
-						return (True);
-					return (False);
-				}
-				bool operator!=(VectorIterator const *rhs) {
-					if (this->_ptr == rhs._ptr)
-						return (True);
-					return (False);
-				}
-				VectorIteratoroperator--(void) {
+				VectorIterator	operator--(void) {
 					--this->_ptr;
 					return (*this);
 				};
 				VectorIterator	operator--(int) {
-					Vector tmp = this->_ptr;
+					VectorIterator tmp = this->_ptr;
 					--this->_ptr;
 					return (tmp);
 				};
+				T	*operator->(void) {
+					return (this->_ptr);
+				};
+				T	&operator*(void) {
+					return (*this->_ptr);
+				};
+				VectorIterator	operator+(int const rhs) {
+					VectorIterator tmp(*this);
+					tmp->_ptr += rhs;
+					return (tmp);
+				};
+				VectorIterator	operator+(VectorIterator const &rhs) {
+					VectorIterator tmp(*this);
+					tmp->_ptr += rhs._ptr;
+					return (tmp);
+				};
+				VectorIterator	operator-(int const rhs) {
+					VectorIterator tmp(*this);
+					tmp->_ptr -= rhs;
+					return (tmp);
+				};
+				VectorIterator	operator-(VectorIterator const &rhs) {
+					VectorIterator tmp(*this);
+					tmp->_ptr -= rhs._ptr;
+					return (tmp);
+				};
+				VectorIterator	&operator+=(int const rhs) {
+					this->_ptr += rhs;
+					return (*this);
+				};
+				VectorIterator	&operator-=(int const rhs) {
+					this->_ptr -= rhs;
+					return (*this);
+				};
+				VectorIterator	operator[](int const rhs) {
+					VectorIterator tmp(*this);
+					tmp->_ptr += rhs;
+					return (*this->_ptr);
+				};
+				T	*base(void) {
+					return (this->_ptr);
+				};
+				operator VectorIterator<const T>(void) {
+					return (VectorIterator<const T>(*this));
+				};
 			private:
-				Vector	*_ptr;
+				T	*_ptr;
 		};
 
+	template <typename T, typename U>
+	bool	operator==(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+		return (lhs.base() == rhs.base());
+	};
+
+	// bool	operator!=(VectorIterator const &rhs) {
+		// return (this->_ptr != rhs._ptr);
+	// };
+	// bool	operator<=(VectorIterator const &rhs) {
+		// return (this->_ptr <= rhs._ptr);
+	// };
+	// bool	operator>=(VectorIterator const &rhs) {
+		// return (this->_ptr >= rhs._ptr);
+	// };
+	// bool	operator<(VectorIterator const &rhs) {
+		// return (this->_ptr < rhs._ptr);
+	// };
+	// bool	operator>(VectorIterator const &rhs) {
+		// return (this->_ptr > rhs._ptr);
+	// };
 
 	template <class T, class Allocator = std::allocator<T> >
 	class vector {
@@ -70,7 +124,7 @@ namespace ft {
 			// types:
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
-			// typedef Alocator::pointer iterator;
+			typedef VectorIterator iterator;
 			// typedef implementation defined const_iterator;
 			typedef std::size_t size_type;
 			typedef std::ptrdiff_t difference_type;
@@ -82,9 +136,14 @@ namespace ft {
 			typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 			// construct/copy/destroy:
-			explicit vector(const allocator_type &alloc = alocator_type()) {
+			explicit vector(allocator_type const &alloc = alocator_type()) {
+				this->_data = alloc::allocate(0);
+				this->_size = 0;
+				this->_capacity = 0;
 			};
-			explicit vector(size_type n, T const &value = value_type(), allocator_type const &alloc = allocator_type());
+			explicit vector(size_type n, T const &value = value_type(), allocator_type const &alloc = allocator_type()) {
+
+			};
 			// template <class InputIterator>
 			// vector(InputIterator first, InputIterator last, const Allocator& = Allocator());
 
@@ -113,7 +172,9 @@ namespace ft {
 			// void resize(size_type sz, T c = T());
 			// size_type capacity() const;
 			// bool empty() const;
-			// void reserve(size_type n);
+			void	reserve(size_type n) {
+				this->_data = allocator_type::allocate(n, this->_data);
+			};
 
 			// // element access:
 			// reference operator[](size_type n);
@@ -137,6 +198,11 @@ namespace ft {
 			// iterator erase(iterator first, iterator last);
 			// void swap(vector<T,Allocator>&);
 			// void clear();
+		private:
+			T			*_data;
+			size_type	_size;
+			size_type	_capacity;
+
 	};
 
 	// template <class T, class Allocator>
