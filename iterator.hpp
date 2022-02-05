@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/03 19:08:06 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/05 15:52:38 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,12 +61,12 @@ namespace ft {
 			}
 
 			// Allow iterator to const_iterator conversion
-			// template<typename _Iter>
-				// __normal_iterator(const __normal_iterator<_Iter,
-						// typename __enable_if<
-						// (std::__are_same<_Iter, typename _Container::pointer>::__value),
-						// _Container>::__type>& __i)
-				// : _M_current(__i.base()) { }
+			template <typename _Iter>
+			NormalIterator(const __normal_iterator<_Iter,
+						typename __enable_if<
+						(std::__are_same<_Iter, typename _Container::pointer>::__value),
+						_Container>::__type>& __i)
+				: _M_current(__i.base()) { }
 
 			// Forward iterator requirements
 			NormalIterator	&operator++(void) {
@@ -130,9 +130,9 @@ namespace ft {
 			// }
 			// ~NormalIterator(void) {
 			// }
-			// operator NormalIterator<const T>(void) {
-				// return (NormalIterator<const T>(*this));
-			// }
+			operator NormalIterator<const T>(void) {
+				return (NormalIterator<const T>(*this));
+			}
 	}
 
 			NormalIterator	operator+(NormalIterator const &rhs) const {
