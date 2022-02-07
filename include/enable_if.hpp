@@ -1,24 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   my_main.cpp                                        :+:      :+:    :+:   */
+/*   enable_if.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/07 22:58:55 by rotrojan         ###   ########.fr       */
+/*   Created: 2022/02/07 15:41:43 by rotrojan          #+#    #+#             */
+/*   Updated: 2022/02/07 15:43:46 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include "vector.hpp"
-#include "vector.hpp"
-#include <iostream>
+#ifndef ENABLE_IF_HPP
+# define ENABLE_IF_HPP
 
-int main(void) {
-	ft::vector<int> vec(5, 42);
+template <bool B, typename T = void>
+struct enable_if {
+};
 
-	ft::vector<int>::iterator it = vec.begin();
-	std::cout << it.base() << std::endl;
-	std::cout << *it.base() << std::endl;
-	return (0);
-}
+template <typename T>
+struct enable_if<true, T> {
+	typedef T type;
+};
+
+#endif

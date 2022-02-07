@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/05 15:52:38 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/07 17:57:08 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ namespace ft {
 // iterator_traits: template struct defining several typedefs to ease type
 // manipulations throughout iterators
 
-	template <class Iterator>
+	template <typename Iterator>
 	struct iterator_traits {
 		typedef typename Iterator::difference_type difference_type;
 		typedef typename Iterator::value_type value_type;
@@ -26,7 +26,7 @@ namespace ft {
 		typedef typename Iterator::reference reference;
 		typedef typename Iterator::iterator_category iterator_category;
 	};
-	template <class T>
+	template <typename T>
 	struct iterator_traits<T *> {
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
@@ -34,7 +34,7 @@ namespace ft {
 		typedef T & reference;
 		typedef random_access_iterator_tag iterator_category;
 	};
-	template <class T>
+	template <typename T>
 	struct iterator_traits<T const *> {
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
@@ -43,7 +43,7 @@ namespace ft {
 		typedef random_access_iterator_tag iterator_category;
 	};
 
-	template <typename Iterator>
+	template <typename Iterator, typename Container>
 	class NormalIterator {
 		private:
 			Iterator _current;
@@ -55,18 +55,11 @@ namespace ft {
 			typedef typename _traits::diference_type difference_type;
 			typedef typename _traits::reference reference;
 			typedef typename _traits::pointer pointer;
+
 			NormalIterator(void): _current(nullptr) {
 			}
 			NormalIterator(Iterator const &it): _current(it) {
 			}
-
-			// Allow iterator to const_iterator conversion
-			template <typename _Iter>
-			NormalIterator(const __normal_iterator<_Iter,
-						typename __enable_if<
-						(std::__are_same<_Iter, typename _Container::pointer>::__value),
-						_Container>::__type>& __i)
-				: _M_current(__i.base()) { }
 
 			// Forward iterator requirements
 			NormalIterator	&operator++(void) {
@@ -122,95 +115,53 @@ namespace ft {
 				return (this->_current);
 			}
 
-			// ??? what about operator= and destructor ???
-			// NormalIterator const	&operator=(NormalIterator const &rhs) {
-				// if (this != &rhs)
-					// this->_ptr = rhs._ptr
-				// return (*this);
-			// }
-			// ~NormalIterator(void) {
-			// }
 			operator NormalIterator<const T>(void) {
 				return (NormalIterator<const T>(*this));
 			}
 	}
-
-			NormalIterator	operator+(NormalIterator const &rhs) const {
-				NormalIterator tmp(*this);
-				tmp->_ptr += rhs._ptr;
-				return (tmp);
-			}
-			NormalIterator	operator-(NormalIterator const &rhs) const {
-				NormalIterator tmp(*this);
-				tmp->_ptr -= rhs._ptr;
-				return (tmp);
-			}
-	template <typename T, typename U>
-	bool	operator==(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+	// Forward iterator requirements
+	template <typename IterL, typename IterR>
+	bool	operator==(NormalIterator<const IterL>(&lhs), NormalIterator<const IterR>(&rhs)) {
 		return (lhs.base() == rhs.base());
 	}
 
-	template <typename T, typename U>
-	bool	operator!=(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+	template <typename IterL, typename IterR>
+	bool	operator!=(NormalIterator<const IterL>(&lhs), NormalIterator<const IterR>(&rhs)) {
 		return (lhs.base() != rhs.base());
 	}
 
-	template <typename T, typename U>
-	bool	operator<=(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+	// Random access Iterator
+	template <typename IterL, typename IterR>
+	bool	operator<=(NormalIterator<const IterL>(&lhs), NormalIterator<const IterR>(&rhs)) {
 		return (lhs.base() <= rhs.base());
 	}
 
-	template <typename T, typename U>
-	bool	operator>=(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+	template <typename IterL, typename IterR>
+	bool	operator>=(NormalIterator<const IterL>(&lhs), NormalIterator<const IterR>(&rhs)) {
 		return (lhs.base() >= rhs.base());
 	}
 
-	template <typename T, typename U>
-	bool	operator<(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+	template <typename IterL, typename IterR>
+	bool	operator<(NormalIterator<const IterL>(&lhs), NormalIterator<const IterR>(&rhs)) {
 		return (lhs.base() < rhs.base());
 	}
 
-	template <typename T, typename U>
-	bool	operator<(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
+	template <typename IterL, typename IterR>
+	bool	operator>(NormalIterator<const IterL>(&lhs), NormalIterator<const IterR>(&rhs)) {
 		return (lhs.base() > rhs.base());
 	}
 
-
-	template <typename T, typename U>
-	bool	operator==(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() > rhs.base());
+	// Operators '-' and '+' must also work with different types
+	template <typename IterL, typename IterR, typename Container>
+	NormalIterator	operator+(NormalIterator const &rhs) {
+		NormalIterator tmp(*this);
+		tmp->_ptr += rhs._ptr;
+		return (tmp);
 	}
-
-	template <typename T, typename U>
-	bool	operator!=(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() != rhs.base());
+	template <typename Iter, typename Container>
+	NormalIterator<Iter, Container>	operator++(
+			typename NormalIterator<Iter, Container>::difference_type n,
+			NormalIterator const<Iter, Container>&iter) {
+		return (NormalIterator<Iter, Container>(it.base() + n));
 	}
-
-	template <typename T, typename U>
-	bool	operator<=(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() <= rhs.base());
-	}
-
-	template <typename T, typename U>
-	bool	operator>=(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() >= rhs.base());
-	}
-
-	template <typename T, typename U>
-	bool	operator<(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() < rhs.base());
-	}
-
-	template <typename T, typename U>
-	bool	operator<(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() > rhs.base());
-	}
-
-
-	template <typename T, typename U>
-	bool	operator==(VectorIterator<const T>(&lhs), VectorIterator<const U>(&rhs)) {
-		return (lhs.base() > rhs.base());
-	}
-}
-
 #endif
