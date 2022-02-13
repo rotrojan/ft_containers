@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/09 12:49:34 by bigo             ###   ########.fr       */
+/*   Updated: 2022/02/13 18:48:56 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,28 +20,25 @@ namespace ft {
 // iterator_traits: template struct defining several typedefs to ease type
 // manipulations throughout iterators
 
-	template <typename Iterator>
-	struct iterator_traits {
+	template <typename Iterator> struct iterator_traits {
 		typedef typename Iterator::difference_type difference_type;
 		typedef typename Iterator::value_type value_type;
 		typedef typename Iterator::pointer pointer;
 		typedef typename Iterator::reference reference;
 		typedef typename Iterator::iterator_category iterator_category;
 	};
-	template <typename T>
-	struct iterator_traits<T *> {
+	template <typename T> struct iterator_traits<T *> {
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
 		typedef T * pointer;
 		typedef T & reference;
 		typedef std::random_access_iterator_tag iterator_category;
 	};
-	template <typename T>
-	struct iterator_traits<T const *> {
+	template <typename T> struct iterator_traits<T * const> {
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
-		typedef T * pointer;
-		typedef T & reference;
+		typedef T const * pointer;
+		typedef T const & reference;
 		typedef std::random_access_iterator_tag iterator_category;
 	};
 
@@ -54,7 +51,7 @@ namespace ft {
 			typedef Iterator iterator_type;
 			typedef std::random_access_iterator_tag iterator_category;
 			typedef typename _traits::value_type value_type;
-			typedef typename _traits::diference_type difference_type;
+			typedef typename _traits::difference_type difference_type;
 			typedef typename _traits::reference reference;
 			typedef typename _traits::pointer pointer;
 
@@ -123,49 +120,56 @@ namespace ft {
 	};
 
 	// Forward iterator requirements
-	template <typename IterL, typename IterR, typename Container>
-	bool	operator==(NormalIterator<const IterL, Container>(&lhs), NormalIterator<const IterR, Container>(&rhs)) {
+
+	template <typename T, typename U, typename Container>
+	bool	operator==(NormalIterator<T, Container> const &lhs,
+	NormalIterator<U, Container> const &rhs) {
 		return (lhs.base() == rhs.base());
 	}
 
-	template <typename IterL, typename IterR, typename Container>
-	bool	operator!=(NormalIterator<const IterL, Container>(&lhs), NormalIterator<const IterR, Container>(&rhs)) {
+	template <typename T, typename U, typename Container>
+	bool	operator!=(NormalIterator<T, Container> const &lhs,
+	NormalIterator<U, Container> const &rhs) {
 		return (lhs.base() != rhs.base());
 	}
 
 	// Random access Iterator
-	template <typename IterL, typename IterR, typename Container>
-	bool	operator<=(NormalIterator<const IterL, Container>(&lhs), NormalIterator<const IterR, Container>(&rhs)) {
+	template <typename T, typename U, typename Container>
+	bool	operator<=(NormalIterator<T, Container> const &lhs,
+	NormalIterator<U, Container> const &rhs) {
 		return (lhs.base() <= rhs.base());
 	}
 
-	template <typename IterL, typename IterR, typename Container>
-	bool	operator>=(NormalIterator<const IterL, Container>(&lhs), NormalIterator<const IterR, Container>(&rhs)) {
+	template <typename T, typename U, typename Container>
+	bool	operator>=(NormalIterator<T, Container> const &lhs,
+	NormalIterator<U, Container> const &rhs) {
 		return (lhs.base() >= rhs.base());
 	}
 
-	template <typename IterL, typename IterR, typename Container>
-	bool	operator<(NormalIterator<const IterL, Container>(&lhs), NormalIterator<const IterR, Container>(&rhs)) {
+	template <typename T, typename U, typename Container>
+	bool	operator<(NormalIterator<T, Container> const &lhs,
+	NormalIterator<U, Container> const &rhs) {
 		return (lhs.base() < rhs.base());
 	}
 
-	template <typename IterL, typename IterR, typename Container>
-	bool	operator>(NormalIterator<const IterL, Container>(&lhs), NormalIterator<const IterR, Container>(&rhs)) {
+	template <typename T, typename U, typename Container>
+	bool	operator>(NormalIterator<T, Container> const &lhs,
+	NormalIterator<U, Container> const &rhs) {
 		return (lhs.base() > rhs.base());
 	}
 
 	// Operators '-' and '+' must also work with different types
 	template <typename Iter, typename Container>
 	NormalIterator<Iter, Container>	operator+(
-		typename NormalIterator<Iter, Container>::difference_type n,
-		const NormalIterator<Iter, Container>&iter) {
+	typename NormalIterator<Iter, Container>::difference_type n,
+	const NormalIterator<Iter, Container>&iter) {
 		return (NormalIterator<Iter, Container>(iter.base() + n));
 	}
 
 	template <typename Iter, typename Container>
 	NormalIterator<Iter, Container>	operator-(
-		typename NormalIterator<Iter, Container>::difference_type n,
-		const NormalIterator<Iter, Container>&iter) {
+	typename NormalIterator<Iter, Container>::difference_type n,
+	const NormalIterator<Iter, Container>&iter) {
 		return (NormalIterator<Iter, Container>(iter.base() - n));
 	}
 }
