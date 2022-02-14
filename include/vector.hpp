@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/13 18:09:01 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/14 17:30:13 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ namespace ft {
 			typedef typename Allocator::const_pointer const_pointer;
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
-			typedef NormalIterator<pointer, vector> iterator;
-			typedef NormalIterator<const_pointer, vector> const_iterator;
+			typedef T * iterator;
+			typedef T * const const_iterator;
 			typedef size_t size_type;
 			typedef ptrdiff_t difference_type;
 			typedef Allocator allocator_type;
@@ -106,7 +106,7 @@ namespace ft {
 				return (this->_finish - this->_start);
 			}
 			size_type max_size(void) const {
-				return (Allocator::max_size());
+				return (this->_alloc.max_size());
 			}
 			// void resize(size_type sz, T c = T());
 			size_type	capacity(void) const {
@@ -119,10 +119,10 @@ namespace ft {
 				if (n > this->max_size())
 					throw std::length_error("vector::reserve");
 				if (n < this->size()) {
-					iterator tmp = allocator_type::allocate(n);
+					iterator tmp = this->_alloc.allocate(n);
 					std::uninitialized_copy(this->_start, this->_finish, tmp);
-					allocator_type::destroy(this->_start, this->_finish);
-					allocator_type::dealocate(this->_start);
+					this->_alloc.destroy(this->_start, this->_finish);
+					this->_alloc.deallocate(this->_start);
 					this->_finish = tmp + this->size();
 					this->_start = tmp;
 					this->_end_of_storage = this->_start + n;
@@ -162,7 +162,7 @@ namespace ft {
 			// }
 			iterator	insert(iterator position, const T &x) {
 				vector_shift(position, this->_finish, 1);
-				allocator_type::construct(position, x);
+				this->_alloc.construct(position, x);
 				++this->_finish;
 				return (position);
 			}
