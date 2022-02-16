@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/15 22:44:01 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/17 00:25:17 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ namespace ft {
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
 			typedef T * iterator;
-			typedef T * const const_iterator;
+			typedef T const * const_iterator;
 			typedef size_t size_type;
 			typedef ptrdiff_t difference_type;
 			typedef Allocator allocator_type;
@@ -42,32 +42,29 @@ namespace ft {
 			// construct/alloc/copy/destroy:
 
 			explicit vector(
-			allocator_type const &alloc = allocator_type()):
+			allocator_type const &alloc = allocator_type()) :
 			_start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
 			}
 
 			explicit vector(
-			size_type n, T const &value = value_type(),
+			size_type n, T const &val = value_type(),
 			allocator_type const &alloc = allocator_type()):
-			_alloc(alloc) {
-				this->reserve(n);
-				this->_finish = this->_start + n;
-				std::uninitialized_fill(this->_start, this->_finish, value);
-				this->_end_of_storage = this->_finish;
+			_start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
+				this->assign(n, val);
 			}
 
-			template <class InputIterator>
-			vector(
-			InputIterator first, InputIterator last,
-			allocator_type const &alloc = allocator_type(),
-			typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type = NULL):
-			_alloc(alloc) {
-				difference_type size = last - first;
-				this->_start = this->_alloc.allocate(size);
-				this->_finish = this->_start + size;
-				std::uninitialized_copy(first, last, this->_start);
-				this->_end_of_storage = this->_finish;
-			}
+			// template <typename InputIterator>
+			// vector(
+			// InputIterator first, InputIterator last,
+			// allocator_type const &alloc = allocator_type(),
+			// typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type = NULL):
+			// _alloc(alloc) {
+				// difference_type size = last - first;
+				// this->_start = this->_alloc.allocate(size);
+				// this->_finish = this->_start + size;
+				// std::uninitialized_copy(first, last, this->_start);
+				// this->_end_of_storage = this->_finish;
+			// }
 
 			vector(const vector<T, Allocator>&v): vector(v._start, v._finish) {
 			}
@@ -86,7 +83,10 @@ namespace ft {
 			// template <class InputIterator>
 			// void	assign(InputIterator first, InputIterator last);
 
-			// void assign(size_type n, const T& u);
+			void	assign(size_type n, T const &val) {
+				this->clear();
+				this->insert(this->_start, n, val);
+			}
 
 			allocator_type	get_allocator(void) const {
 				return (this->_alloc);
@@ -124,7 +124,20 @@ namespace ft {
 				return (this->_alloc.max_size());
 			}
 
-			// void resize(size_type sz, T c = T());
+			void	resize(size_type new_size, value_type val = value_type()) {
+				size_type old_size = this->size();
+				if (new_size < old_size) {
+					iterator new_finish = this->_start + new_size;
+					this->_destroy_range(new_finish, this->_finish);
+					this->_finish = new_finish;
+				} else {
+					size_type additional_size = new_size - old_size;
+					if (new_size > this->capacity()) 
+						this->reserve(new_size + additional_size);
+					std::uninitialized_fill_n(this->_finish, additional_size, val);
+					this->_finish += additional_size;
+				}
+			}
 
 			size_type	capacity(void) const {
 				return (this->_end_of_storage - this->_start);
@@ -142,7 +155,6 @@ namespace ft {
 					size_type old_size = this->size();
 					iterator tmp = this->_alloc.allocate(n);
 					std::uninitialized_copy(this->_start, this->_finish, tmp);
-					this->_destroy_range(this->_start, this->_finish);
 					this->_alloc.deallocate(this->_start, capacity);
 					this->_start = tmp;
 					this->_finish = this->_start + old_size;
@@ -190,56 +202,55 @@ namespace ft {
 				this->insert(this->_finish, x);
 			}
 
-			// void pop_back(void) {
-				// this->erase(this->_finish - 1);
-			// }
-
-			iterator	insert(iterator position, const T &x) {
-				std::cout << "capacity = " << this->capacity() << std::endl;
-				std::cout << "size = " << this->size() << std::endl;
-				if (this->_finish == this->_end_of_storage)
-				{
-					this->reserve(this->capacity() + 1);
-					std::cout << "pouet" << std::endl;
-				}
-				this->_vector_shift(position, this->_finish, 1);
-				// position = this->_alloc.allocate(1);
-				this->_alloc.construct(position, x);
-				++this->_finish;
-				return (position);
+			void pop_back(void) {
+				this->erase(this->_finish);
 			}
 
-			void	insert(iterator position, size_type n, T const &x) {
-				if (this->_start == this->_end_of_storage)
+			iterator	insert(iterator position, T const &val) {
+				difference_type index = position - this->_start;
+				if (this->_finish == this->_end_of_storage)
 					this->reserve(this->capacity() + 1);
-				this->_vector_shift(position, this->_finish, n);
-				std::uninitialized_fill(position, position + n, x);
+				this->_vector_shift_right(this->_start + index, this->_finish, 1);
+				this->_alloc.construct(this->_start + index, val);
+				++this->_finish;
+				return (this->_start + index);
+			}
+
+			void	insert(iterator position, size_type n, T const &val) {
+				difference_type index = position - this->_start;
+				if (this->size() + n > this->capacity())
+					this->reserve(this->capacity() + n);
+				this->_vector_shift_right(this->_start + index, this->_finish, n);
+				std::uninitialized_fill_n(this->_start + index, n, val);
 				this->_finish += n;
 			}
 
 			template <class InputIterator>
-			void insert(iterator position, InputIterator first, InputIterator last) {
-				difference_type size = last - first;
-				this->_vector_shift(position, this->_finish, size);
-				std::uninitialized_copy(first, last, position);
-				this->_finish += size;
+			typename enable_if<!is_integral<InputIterator>::value, void>::type
+			insert(iterator position, InputIterator first, InputIterator last) {
+				difference_type index = position - this->_start;
+				difference_type additional_size = last - first;
+				if (this->size() + additional_size > this->capacity())
+					this->reserve(this->capacity() + additional_size);
+				this->_vector_shift_right(this->_start + index, this->_finish, additional_size);
+				std::uninitialized_copy(first, last, this->_start + index);
+				this->_finish += additional_size;
 			}
 
 			iterator	erase(iterator position) {
-				std::uninitialized_copy(position + 1, this->_finish, position);
-				allocator_type::destroy(this->_finish);
+				this->_vector_shift_left(position, this->_finish, 1);
+				this->_alloc.destroy(this->_finish);
 				--this->_finish;
-				return (position + 1);
+				return (position);
 			}
 
-			// iterator	erase(iterator first, iterecursifrator last) {
-				// std::uninitialized_copy(last + 1, this->_finish, first);
-				// difference_type size = last - first; 
-				// for (iterator it = this->_finish - size; it != this->_finish; ++it)
-					// allocator_type::destroy(this->_finish);
-				// this->_finish -= size;
-				// return (first + size);
-			// }
+			iterator	erase(iterator first, iterator last) {
+				difference_type size = last - first; 
+				this->_vector_shift_left(first, this->_finish, size);
+				this->_destroy_range(first, this->_finish);
+				this->_finish -= size;
+				return (first);
+			}
 
 			// void	swap(vector<T, Allocator>&v) {
 				// swap(this->_start, v._start);
@@ -247,9 +258,9 @@ namespace ft {
 				// swap(this->_end_of_storage, v._end_of_storage);
 			// }
 
-			// void	clear(void) {
-				// this->erase(this->_start, this->_finish);
-			// }
+			void	clear(void) {
+				this->erase(this->_start, this->_finish);
+			}
 
 		private:
 			pointer _start;
@@ -259,11 +270,20 @@ namespace ft {
 
 			// utils
 
-			void	_vector_shift(iterator position, iterator finish, size_type offset) {
+			void	_vector_shift_right(iterator position, iterator finish, difference_type offset) {
 				if (this->empty() == false) {
 					for (--finish; finish >= position; --finish) {
 						this->_alloc.construct(finish + offset, *finish);
 						this->_alloc.destroy(finish);
+					}
+				}
+			}
+
+			void	_vector_shift_left(iterator position, iterator finish, difference_type offset) {
+				if (this->empty() == false) {
+					for (; position + offset < finish; ++position) {
+						this->_alloc.construct(position, *(position + offset));
+						this->_alloc.destroy(position + offset);
 					}
 				}
 			}

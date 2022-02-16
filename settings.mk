@@ -6,11 +6,11 @@
 #    By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 21:06:11 by rotrojan          #+#    #+#              #
-#    Updated: 2022/02/13 13:48:19 by rotrojan         ###   ########.fr        #
+#    Updated: 2022/02/16 21:43:12 by rotrojan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-MAIN = my_main.cpp
+MAIN = marc_main.cpp
 
 # The name of the binary
 NAME = ft_container_test
@@ -29,7 +29,7 @@ LIBS =
 OBJS_DIR = .objs
 
 # The file where make will look for all the header files
-INCLUDES_DIR = include
+INCLUDES_DIR = include containers_test/srcs/vector 
 
 # The C++ compiler
 CXX = c++
