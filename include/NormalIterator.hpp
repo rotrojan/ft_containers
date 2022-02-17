@@ -6,12 +6,13 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/15 14:41:21 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/15 14:42:15 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/17 18:10:11 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef NORMAL_ITERATOR_HPP
 # define NORMAL_ITERATOR_HPP
+# include "iterator.hpp"
 
 namespace ft {
 	template <typename Iterator, typename Container>
