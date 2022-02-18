@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/17 22:33:10 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/18 23:28:31 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,6 @@
 # include <iterator>
 
 namespace ft {
-
-	// iterator_traits: template struct defining several typedefs to ease type
-	// manipulations throughout iterators, containers and algorithms
 
 	template <typename Iterator>
 	struct iterator_traits {
@@ -39,14 +36,15 @@ namespace ft {
 	};
 
 	template <typename T>
-	struct iterator_traits<T * const> {
+	struct iterator_traits<const T*> {
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
-		typedef T const * pointer;
-		typedef T const & reference;
+		typedef const T* pointer;
+		typedef const T& reference;
 		typedef std::random_access_iterator_tag iterator_category;
 	};
 
+	// NormalIterators can be used for vectors
 	// reverse_iterator class
 
 	template <typename Iterator>
@@ -57,6 +55,7 @@ namespace ft {
 
 		public:
 			typedef typename _traits::difference_type difference_type;
+			// std::ptrdiff_t difference_type;
 			typedef typename _traits::value_type value_type;
 			typedef typename _traits::pointer pointer;
 			typedef typename _traits::reference reference;

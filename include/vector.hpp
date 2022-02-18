@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/17 23:47:55 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/18 23:29:02 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,162 @@
 
 namespace ft {
 
-	template <typename T, typename Allocator = std::allocator<T> > class vector {
+
+	template <typename T>
+	class NormalIterator {
+
+		private:
+			T *_current;
+
+		public:
+			typedef T value_type;
+			typedef T *pointer;
+			typedef T &reference;
+			// typedef pointer iterator_type;
+			typedef std::random_access_iterator_tag iterator_category;
+			typedef ptrdiff_t difference_type;
+
+			NormalIterator(void): _current(NULL) {
+			}
+
+			NormalIterator(pointer ptr): _current(ptr) {
+			}
+
+			NormalIterator (const NormalIterator &normaliterator):
+			_current(normaliterator._current) {
+			}
+
+			// Forward iterator requirements
+
+			NormalIterator	&operator++(void) {
+				++this->_current;
+				return (*this);
+			}
+
+			NormalIterator	operator++(int) {
+				NormalIterator tmp = this->_current;
+				++this->_current;
+				return (tmp);
+			}
+
+			pointer	operator->(void) const {
+				return (this->_current);
+			}
+
+			reference	operator*(void) const {
+				return (*this->_current);
+			}
+
+			// Bidirectional iterator requirements
+			NormalIterator	&operator--(void) {
+				--this->_current;
+				return (*this);
+			}
+			NormalIterator	operator--(int) {
+				NormalIterator tmp = this->_current;
+				--this->_current;
+				return (tmp);
+			}
+
+			// Random access iterator requirements
+
+			difference_type	operator+(NormalIterator<T> const &iter) const {
+				return (this->_current + iter._current);
+			}
+
+			NormalIterator<T>	operator+(difference_type const &n) const {
+				return (NormalIterator(this->_current + n));
+			}
+
+			difference_type	operator-(NormalIterator<T> const &iter) const {
+				return (this->_current - iter._current);
+			}
+
+			NormalIterator<T>	operator-(difference_type const &n) const {
+				return (NormalIterator(this->_current - n));
+			}
+
+			NormalIterator	&operator+=(difference_type const &n) {
+				this->_current += n;
+				return (*this);
+			}
+
+			NormalIterator	&operator-=(difference_type const &n) {
+				this->_current -= n;
+				return (*this);
+			}
+
+			reference	operator[](difference_type const &n) const {
+				return (this->_current[n]);
+			}
+
+			pointer const	&base(void) const {
+				return (this->_current);
+			}
+
+			operator NormalIterator<T>(void) const {
+				return (NormalIterator<const T>(this->_current));
+			}
+
+	};
+
+	// Forward iterator requirements
+
+	template <typename T>
+	bool	operator==(NormalIterator<T> const &lhs,
+	NormalIterator<T> const &rhs) {
+		return (lhs.base() == rhs.base());
+	}
+
+	template <typename T>
+	bool	operator!=(NormalIterator<T> const &lhs,
+	NormalIterator<T> const &rhs) {
+		return (lhs.base() != rhs.base());
+	}
+
+	// Random access Iterator
+	template <typename T>
+	bool	operator<=(NormalIterator<T> const &lhs,
+	NormalIterator<T> const &rhs) {
+		return (lhs.base() <= rhs.base());
+	}
+
+	template <typename T>
+	bool	operator>=(NormalIterator<T> const &lhs,
+	NormalIterator<T> const &rhs) {
+		return (lhs.base() >= rhs.base());
+	}
+
+	template <typename T>
+	bool	operator<(NormalIterator<T> const &lhs,
+	NormalIterator<T> const &rhs) {
+		return (lhs.base() < rhs.base());
+	}
+
+	template <typename T>
+	bool	operator>(NormalIterator<T> const &lhs,
+	NormalIterator<T> const &rhs) {
+		return (lhs.base() > rhs.base());
+	}
+
+	// Operators '-' and '+' must also work with different types
+
+	template <typename T>
+	NormalIterator<T>	operator+(
+	typename NormalIterator<T>::difference_type n,
+	const NormalIterator<T>&iter) {
+		return (NormalIterator<T>(iter.base() + n));
+	}
+
+	template <typename T>
+	NormalIterator<T>	operator-(
+	typename NormalIterator<T>::difference_type n,
+	const NormalIterator<T>&iter) {
+		return (NormalIterator<T>(iter.base() - n));
+	}
+
+	template <typename T, typename Allocator = std::allocator<T> >
+	class vector {
 		public:
 
 // types:
@@ -33,10 +188,10 @@ namespace ft {
 			typedef typename Allocator::const_pointer const_pointer;
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
-			// typedef NormalIterator<pointer, vector> iterator;
-			// typedef NormalIterator<const_pointer, vector> const_iterator;
-			typedef T * iterator;
-			typedef T const * const_iterator;
+			typedef NormalIterator<T> iterator;
+			typedef NormalIterator<T const> const_iterator;
+			// typedef T * iterator;
+			// typedef T const * const_iterator;
 			typedef size_t size_type;
 			typedef ptrdiff_t difference_type;
 			typedef Allocator allocator_type;
@@ -230,7 +385,7 @@ namespace ft {
 				difference_type index = std::distance(this->_start, position);
 				if (this->_finish == this->_end_of_storage)
 					this->reserve(this->capacity() + 1);
-				this->_vector_shift_right(this->_start + index, this->_finish, 1);
+				this->_vector_shift_right(this->_start + index, 1);
 				this->_alloc.construct(this->_start + index, val);
 				++this->_finish;
 				return (this->_start + index);
@@ -240,7 +395,7 @@ namespace ft {
 				difference_type index = std::distance(this->_start, position);
 				if (this->size() + n > this->capacity())
 					this->reserve(this->capacity() + n);
-				this->_vector_shift_right(this->_start + index, this->_finish, n);
+				this->_vector_shift_right(this->_start + index, n);
 				std::uninitialized_fill_n(this->_start + index, n, val);
 				this->_finish += n;
 			}
@@ -252,13 +407,13 @@ namespace ft {
 				difference_type additional_size = std::distance(first, last);
 				if (this->size() + additional_size > this->capacity())
 					this->reserve(this->capacity() + additional_size);
-				this->_vector_shift_right(this->_start + index, this->_finish, additional_size);
+				this->_vector_shift_right(this->_start + index, additional_size);
 				std::uninitialized_copy(first, last, this->_start + index);
 				this->_finish += additional_size;
 			}
 
 			iterator	erase(iterator position) {
-				this->_vector_shift_left(position, this->_finish, 1);
+				this->_vector_shift_left(position, 1);
 				// this->_alloc.destroy(this->_finish);
 				--this->_finish;
 				return (position);
@@ -266,7 +421,7 @@ namespace ft {
 
 			iterator	erase(iterator first, iterator last) {
 				difference_type size = std::distance(first, last); 
-				this->_vector_shift_left(first, this->_finish, size);
+				this->_vector_shift_left(first, size);
 				// this->_destroy_range(first, this->_finish);
 				this->_finish -= size;
 				return (first);
@@ -283,25 +438,25 @@ namespace ft {
 			}
 
 		private:
-			pointer _start;
-			pointer _finish;
-			pointer _end_of_storage;
+			iterator _start;
+			iterator _finish;
+			iterator _end_of_storage;
 			allocator_type _alloc;
 
 			// utils
 
-			void	_vector_shift_right(iterator position, iterator finish, difference_type offset) {
+			void	_vector_shift_right(iterator position, difference_type offset) {
 				if (this->empty() == false) {
-					for (--finish; finish >= position; --finish) {
-						this->_alloc.construct(finish + offset, *finish);
+					for (iterator ite = this->_finish - 1; ite >= position; --ite) {
+						this->_alloc.construct(ite + offset, *ite);
 						// this->_alloc.destroy(finish);
 					}
 				}
 			}
 
-			void	_vector_shift_left(iterator position, iterator finish, difference_type offset) {
+			void	_vector_shift_left(iterator position, difference_type offset) {
 				if (this->empty() == false) {
-					for (; position + offset < finish; ++position) {
+					for (; position + offset < this->_finish; ++position) {
 						this->_alloc.construct(position, *(position + offset));
 						// this->_alloc.destroy(position + offset);
 					}
