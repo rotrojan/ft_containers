@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/18 23:28:31 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/19 17:52:45 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,6 @@ namespace ft {
 
 		public:
 			typedef typename _traits::difference_type difference_type;
-			// std::ptrdiff_t difference_type;
 			typedef typename _traits::value_type value_type;
 			typedef typename _traits::pointer pointer;
 			typedef typename _traits::reference reference;
@@ -70,6 +69,13 @@ namespace ft {
 
 			template <typename It>
 			reverse_iterator(reverse_iterator<It> const &rit): _current(rit.base()) {
+			}
+
+			template <class It>
+			reverse_iterator	&operator=(reverse_iterator<It> const &rit) {
+				if (this != &rit)
+					this->_current = rit._current;
+				return (*this);
 			}
 
 			Iterator	base(void) const {

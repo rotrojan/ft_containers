@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/18 23:29:02 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/19 20:11:19 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,45 +18,57 @@
 # include "enable_if.hpp"
 # include "is_integral.hpp"
 # include "algorithm.hpp"
-// # include "NormalIterator.hpp"
-// # include <iostream>
+// # include "VectorIterator.hpp"
+# include <iostream>
 
 namespace ft {
 
+	/*
+	** VectorIterator class
+	*/
 
 	template <typename T>
-	class NormalIterator {
+	class VectorIterator {
 
 		private:
+
 			T *_current;
 
 		public:
+
 			typedef T value_type;
 			typedef T *pointer;
 			typedef T &reference;
-			// typedef pointer iterator_type;
 			typedef std::random_access_iterator_tag iterator_category;
 			typedef ptrdiff_t difference_type;
 
-			NormalIterator(void): _current(NULL) {
+			VectorIterator(void): _current(NULL) {
 			}
 
-			NormalIterator(pointer ptr): _current(ptr) {
+			VectorIterator(pointer ptr): _current(ptr) {
 			}
 
-			NormalIterator (const NormalIterator &normaliterator):
-			_current(normaliterator._current) {
+			VectorIterator(VectorIterator const &vit): _current(vit._current) {
+			}
+
+			~VectorIterator(void) {
+			}
+
+			VectorIterator<T>	&operator=(VectorIterator<T> const &rhs) {
+				if (this != &rhs)
+					this->_current = rhs._current;
+				return (*this);
 			}
 
 			// Forward iterator requirements
 
-			NormalIterator	&operator++(void) {
+			VectorIterator	&operator++(void) {
 				++this->_current;
 				return (*this);
 			}
 
-			NormalIterator	operator++(int) {
-				NormalIterator tmp = this->_current;
+			VectorIterator	operator++(int) {
+				VectorIterator tmp = this->_current;
 				++this->_current;
 				return (tmp);
 			}
@@ -70,40 +82,41 @@ namespace ft {
 			}
 
 			// Bidirectional iterator requirements
-			NormalIterator	&operator--(void) {
+
+			VectorIterator	&operator--(void) {
 				--this->_current;
 				return (*this);
 			}
-			NormalIterator	operator--(int) {
-				NormalIterator tmp = this->_current;
+			VectorIterator	operator--(int) {
+				VectorIterator tmp = this->_current;
 				--this->_current;
 				return (tmp);
 			}
 
 			// Random access iterator requirements
 
-			difference_type	operator+(NormalIterator<T> const &iter) const {
+			difference_type	operator+(VectorIterator<T> const &iter) const {
 				return (this->_current + iter._current);
 			}
 
-			NormalIterator<T>	operator+(difference_type const &n) const {
-				return (NormalIterator(this->_current + n));
+			VectorIterator<T>	operator+(difference_type const &n) const {
+				return (VectorIterator(this->_current + n));
 			}
 
-			difference_type	operator-(NormalIterator<T> const &iter) const {
+			difference_type	operator-(VectorIterator<T> const &iter) const {
 				return (this->_current - iter._current);
 			}
 
-			NormalIterator<T>	operator-(difference_type const &n) const {
-				return (NormalIterator(this->_current - n));
+			VectorIterator<T>	operator-(difference_type const &n) const {
+				return (VectorIterator(this->_current - n));
 			}
 
-			NormalIterator	&operator+=(difference_type const &n) {
+			VectorIterator	&operator+=(difference_type const &n) {
 				this->_current += n;
 				return (*this);
 			}
 
-			NormalIterator	&operator-=(difference_type const &n) {
+			VectorIterator	&operator-=(difference_type const &n) {
 				this->_current -= n;
 				return (*this);
 			}
@@ -116,8 +129,12 @@ namespace ft {
 				return (this->_current);
 			}
 
-			operator NormalIterator<T>(void) const {
-				return (NormalIterator<const T>(this->_current));
+			operator	pointer(void) {
+				return (this->_current);
+			}
+
+			operator	VectorIterator<const T>(void) const {
+				return (VectorIterator<const T>(this->_current));
 			}
 
 	};
@@ -125,60 +142,65 @@ namespace ft {
 	// Forward iterator requirements
 
 	template <typename T>
-	bool	operator==(NormalIterator<T> const &lhs,
-	NormalIterator<T> const &rhs) {
+	bool	operator==(VectorIterator<T> const &lhs,
+	VectorIterator<T> const &rhs) {
 		return (lhs.base() == rhs.base());
 	}
 
 	template <typename T>
-	bool	operator!=(NormalIterator<T> const &lhs,
-	NormalIterator<T> const &rhs) {
+	bool	operator!=(VectorIterator<T> const &lhs,
+	VectorIterator<T> const &rhs) {
 		return (lhs.base() != rhs.base());
 	}
 
 	// Random access Iterator
 	template <typename T>
-	bool	operator<=(NormalIterator<T> const &lhs,
-	NormalIterator<T> const &rhs) {
+	bool	operator<=(VectorIterator<T> const &lhs,
+	VectorIterator<T> const &rhs) {
 		return (lhs.base() <= rhs.base());
 	}
 
 	template <typename T>
-	bool	operator>=(NormalIterator<T> const &lhs,
-	NormalIterator<T> const &rhs) {
+	bool	operator>=(VectorIterator<T> const &lhs,
+	VectorIterator<T> const &rhs) {
 		return (lhs.base() >= rhs.base());
 	}
 
 	template <typename T>
-	bool	operator<(NormalIterator<T> const &lhs,
-	NormalIterator<T> const &rhs) {
+	bool	operator<(VectorIterator<T> const &lhs,
+	VectorIterator<T> const &rhs) {
 		return (lhs.base() < rhs.base());
 	}
 
 	template <typename T>
-	bool	operator>(NormalIterator<T> const &lhs,
-	NormalIterator<T> const &rhs) {
+	bool	operator>(VectorIterator<T> const &lhs,
+	VectorIterator<T> const &rhs) {
 		return (lhs.base() > rhs.base());
 	}
 
 	// Operators '-' and '+' must also work with different types
 
 	template <typename T>
-	NormalIterator<T>	operator+(
-	typename NormalIterator<T>::difference_type n,
-	const NormalIterator<T>&iter) {
-		return (NormalIterator<T>(iter.base() + n));
+	VectorIterator<T>	operator+(
+	typename VectorIterator<T>::difference_type n,
+	const VectorIterator<T>&iter) {
+		return (VectorIterator<T>(iter.base() + n));
 	}
 
 	template <typename T>
-	NormalIterator<T>	operator-(
-	typename NormalIterator<T>::difference_type n,
-	const NormalIterator<T>&iter) {
-		return (NormalIterator<T>(iter.base() - n));
+	VectorIterator<T>	operator-(
+	typename VectorIterator<T>::difference_type n,
+	const VectorIterator<T>&iter) {
+		return (VectorIterator<T>(iter.base() - n));
 	}
+
+	/*
+	** vector container
+	*/
 
 	template <typename T, typename Allocator = std::allocator<T> >
 	class vector {
+
 		public:
 
 // types:
@@ -188,8 +210,10 @@ namespace ft {
 			typedef typename Allocator::const_pointer const_pointer;
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
-			typedef NormalIterator<T> iterator;
-			typedef NormalIterator<T const> const_iterator;
+			typedef VectorIterator<T> iterator;
+			typedef VectorIterator<T const> const_iterator;
+			// Since pointers are perfectly valid random access iterator, they
+			// can be used as normal iterators
 			// typedef T * iterator;
 			// typedef T const * const_iterator;
 			typedef size_t size_type;
@@ -198,7 +222,7 @@ namespace ft {
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-			// construct/alloc/copy/destroy:
+			// ctors / allocators / copy-ctors / dtor
 
 			explicit vector(
 			allocator_type const &alloc = allocator_type()) :
@@ -252,21 +276,22 @@ namespace ft {
 				return (this->_alloc);
 			}
 
-			// iterators:
+			// iterators
+
 			iterator	begin(void) {
-				return (this->_start);
+				return (iterator(this->_start));
 			}
 
-			const_iterator	 begin(void) const {
-				return (this->_start);
+			const_iterator	begin(void) const {
+				return (const_iterator(this->_start));
 			}
 
 			iterator	end(void) {
-				return (this->_finish);
+				return (iterator(this->_finish));
 			}
 
 			const_iterator	end(void) const {
-				return (this->_finish);
+				return (const_iterator(this->_finish));
 			}
 
 			reverse_iterator	rbegin(void) {
@@ -284,7 +309,7 @@ namespace ft {
 				return (const_reverse_iterator(this->_start));
 			}
 
-			// capacity:
+			// capacity
 
 			size_type size(void) const {
 				return (std::distance(this->_start, this->_finish));
@@ -333,7 +358,7 @@ namespace ft {
 				}
 			}
 
-			// element access:
+			// element access
 
 			reference	operator[](size_type n) {
 				return (this->_start[n]);

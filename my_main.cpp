@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/18 18:58:32 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/19 18:31:15 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,17 @@
 
 int main(void) {
 
-	ft::vector<int> vec_a;
-	vec_a.insert(vec_a.begin(), 10, 42);
-	ft::vector<int>::iterator it_a = vec_a.begin();
-	ft::vector<int>::iterator ite_a = vec_a.end();
-	std::cout << "vec_a = ";
-	for (; it_a != ite_a; ++it_a)
-		std::cout << *it_a << " ";
-	std::cout << std::endl;
+	ft::vector<int> vec(1, 42);
+	ft::vector<int>::const_iterator it(vec.begin());
+	std::cout << *it << std::endl;
+	// ft::vector<int> vec_a;
+	// vec_a.insert(vec_a.begin(), 10, 42);
+	// ft::vector<int>::const_iterator it_a(vec_a.begin());
+	// ft::vector<int>::const_iterator ite_a(vec_a.end());
+	// std::cout << "vec_a = ";
+	// for (; it_a != ite_a; ++it_a)
+		// std::cout << *it_a << " ";
+	// std::cout << std::endl;
 
 	// ft::vector<int> vec_b;
 	// it_a = vec_a.begin();
