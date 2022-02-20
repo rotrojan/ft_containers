@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/20 14:13:16 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/20 16:19:14 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,14 +347,17 @@ namespace ft {
 					throw std::length_error("vector::reserve");
 				size_type capacity = this->capacity();
 				if (n > capacity) {
+					size_type new_capacity = capacity == 0 ? n : capacity + n - 1;
+					while (new_capacity < capacity + n - 1)
+						new_capacity *= 2;
 					size_type old_size = this->size();
-					pointer tmp = this->_alloc.allocate(n);
+					pointer tmp = this->_alloc.allocate(new_capacity);
 					// this->_destroy_range(this->_start, this->_finish);
 					std::uninitialized_copy(this->_start, this->_finish, tmp);
 					this->_alloc.deallocate(&*this->_start, capacity);
 					this->_start = tmp;
 					this->_finish = this->_start + old_size;
-					this->_end_of_storage = this->_start + n;
+					this->_end_of_storage = this->_start + new_capacity;
 				}
 			}
 
