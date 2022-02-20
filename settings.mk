@@ -6,14 +6,14 @@
 #    By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 21:06:11 by rotrojan          #+#    #+#              #
-#    Updated: 2022/02/18 16:27:43 by rotrojan         ###   ########.fr        #
+#    Updated: 2022/02/20 14:35:14 by rotrojan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 MAIN = my_main.cpp
 
 # The name of the binary
-NAME = ft_container_test
+NAME = ft_containers_test
 
 # The list of the all the sources, because $(wildcard *.c) is too dangerous
 SRCS =	$(MAIN)		\
