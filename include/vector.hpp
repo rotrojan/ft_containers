@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/19 20:11:19 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/20 14:13:16 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,9 +129,9 @@ namespace ft {
 				return (this->_current);
 			}
 
-			operator	pointer(void) {
-				return (this->_current);
-			}
+			// operator	pointer(void) {
+				// return (this->_current);
+			// }
 
 			operator	VectorIterator<const T>(void) const {
 				return (VectorIterator<const T>(this->_current));
@@ -141,40 +141,40 @@ namespace ft {
 
 	// Forward iterator requirements
 
-	template <typename T>
+	template <typename T, typename U>
 	bool	operator==(VectorIterator<T> const &lhs,
-	VectorIterator<T> const &rhs) {
+	VectorIterator<U> const &rhs) {
 		return (lhs.base() == rhs.base());
 	}
 
-	template <typename T>
+	template <typename T, typename U>
 	bool	operator!=(VectorIterator<T> const &lhs,
-	VectorIterator<T> const &rhs) {
+	VectorIterator<U> const &rhs) {
 		return (lhs.base() != rhs.base());
 	}
 
 	// Random access Iterator
-	template <typename T>
+	template <typename T, typename U>
 	bool	operator<=(VectorIterator<T> const &lhs,
-	VectorIterator<T> const &rhs) {
+	VectorIterator<U> const &rhs) {
 		return (lhs.base() <= rhs.base());
 	}
 
-	template <typename T>
+	template <typename T, typename U>
 	bool	operator>=(VectorIterator<T> const &lhs,
-	VectorIterator<T> const &rhs) {
+	VectorIterator<U> const &rhs) {
 		return (lhs.base() >= rhs.base());
 	}
 
-	template <typename T>
+	template <typename T, typename U>
 	bool	operator<(VectorIterator<T> const &lhs,
-	VectorIterator<T> const &rhs) {
+	VectorIterator<U> const &rhs) {
 		return (lhs.base() < rhs.base());
 	}
 
-	template <typename T>
+	template <typename T, typename U>
 	bool	operator>(VectorIterator<T> const &lhs,
-	VectorIterator<T> const &rhs) {
+	VectorIterator<U> const &rhs) {
 		return (lhs.base() > rhs.base());
 	}
 
@@ -252,7 +252,7 @@ namespace ft {
 
 			~vector(void) {
 				// clear();
-				this->_alloc.deallocate(this->_start, std::distance(this->_start, this->_end_of_storage));
+				this->_alloc.deallocate(&*this->_start, std::distance(this->_start, this->_end_of_storage));
 			}
 
 			vector<T, Allocator>	&operator=(vector<T,Allocator> const &vct) {
@@ -351,7 +351,7 @@ namespace ft {
 					pointer tmp = this->_alloc.allocate(n);
 					// this->_destroy_range(this->_start, this->_finish);
 					std::uninitialized_copy(this->_start, this->_finish, tmp);
-					this->_alloc.deallocate(this->_start, capacity);
+					this->_alloc.deallocate(&*this->_start, capacity);
 					this->_start = tmp;
 					this->_finish = this->_start + old_size;
 					this->_end_of_storage = this->_start + n;
@@ -411,7 +411,7 @@ namespace ft {
 				if (this->_finish == this->_end_of_storage)
 					this->reserve(this->capacity() + 1);
 				this->_vector_shift_right(this->_start + index, 1);
-				this->_alloc.construct(this->_start + index, val);
+				this->_alloc.construct(&*(this->_start) + index, val);
 				++this->_finish;
 				return (this->_start + index);
 			}
@@ -473,7 +473,7 @@ namespace ft {
 			void	_vector_shift_right(iterator position, difference_type offset) {
 				if (this->empty() == false) {
 					for (iterator ite = this->_finish - 1; ite >= position; --ite) {
-						this->_alloc.construct(ite + offset, *ite);
+						this->_alloc.construct(&*(ite + offset), *ite);
 						// this->_alloc.destroy(finish);
 					}
 				}
@@ -482,7 +482,7 @@ namespace ft {
 			void	_vector_shift_left(iterator position, difference_type offset) {
 				if (this->empty() == false) {
 					for (; position + offset < this->_finish; ++position) {
-						this->_alloc.construct(position, *(position + offset));
+						this->_alloc.construct(&*position, *(position + offset));
 						// this->_alloc.destroy(position + offset);
 					}
 				}
@@ -495,41 +495,41 @@ namespace ft {
 	};
 
 	template <typename T, typename Allocator>
-	bool	operator==(vector<T,Allocator> const &lhs, vector<T,Allocator> const &rhs) {
+	bool	operator==(vector<T, Allocator> const &lhs, vector<T,Allocator> const &rhs) {
 		if (lhs.size() != rhs.size())
 			return (false);
 		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 	}
 
 	template <typename T, typename Allocator>
-	bool	operator!=(vector<T,Allocator> const &lhs, vector<T,Allocator> const &rhs) {
+	bool	operator!=(vector<T, Allocator> const &lhs, vector<T,Allocator> const &rhs) {
 		return (!(lhs == rhs));
 	}
 
 	template <typename T, typename Allocator>
-	bool	operator<(vector<T,Allocator> const &lhs, vector<T,Allocator> const &rhs) {
+	bool	operator<(vector<T, Allocator> const &lhs, vector<T,Allocator> const &rhs) {
 		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
 	}
 
 	template <typename T, typename Allocator>
-	bool	operator>(vector<T,Allocator> const &lhs, vector<T,Allocator> const &rhs) {
+	bool	operator>(vector<T, Allocator> const &lhs, vector<T,Allocator> const &rhs) {
 		return (rhs < lhs);
 	}
 
 	template <typename T, typename Allocator>
-	bool	operator<=(vector<T,Allocator> const &lhs, vector<T,Allocator> const &rhs) {
+	bool	operator<=(vector<T, Allocator> const &lhs, vector<T,Allocator> const &rhs) {
 		return (lhs < rhs || lhs == rhs);
 	}
 
 	template <typename T, typename Allocator>
-	bool	operator>=(vector<T,Allocator> const &lhs, vector<T,Allocator> const &rhs) {
+	bool	operator>=(vector<T, Allocator> const &lhs, vector<T,Allocator> const &rhs) {
 		return (lhs > rhs || lhs == rhs);
 	}
 
 	// specialized algorithms:
 
 	template <typename T, typename Allocator>
-	void swap(vector<T,Allocator> &lhs, vector<T,Allocator> &rhs) {
+	void swap(vector<T, Allocator> &lhs, vector<T,Allocator> &rhs) {
 		lhs.swap(rhs);
 	}
 }

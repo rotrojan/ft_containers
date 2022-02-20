@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/19 17:52:45 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/20 14:12:47 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ namespace ft {
 	};
 
 	template <typename T>
-	struct iterator_traits<const T*> {
+	struct iterator_traits<T * const> {
 		typedef ptrdiff_t difference_type;
 		typedef T value_type;
 		typedef const T* pointer;
@@ -67,16 +67,16 @@ namespace ft {
 			explicit reverse_iterator(iterator_type it): _current(it) {
 			}
 
-			template <typename It>
-			reverse_iterator(reverse_iterator<It> const &rit): _current(rit.base()) {
+			template <typename Iter>
+			reverse_iterator(reverse_iterator<Iter> const &rit): _current(rit.base()) {
 			}
 
-			template <class It>
-			reverse_iterator	&operator=(reverse_iterator<It> const &rit) {
-				if (this != &rit)
-					this->_current = rit._current;
-				return (*this);
-			}
+			// template <typename Iter>
+			// reverse_iterator	&operator=(reverse_iterator<Iter> const &rit) {
+				// if (this != &rit)
+					// this->_current = rit.base();
+				// return (*this);
+			// }
 
 			Iterator	base(void) const {
 				return (this->_current);
@@ -89,7 +89,7 @@ namespace ft {
 
 			pointer	operator->(void) const {
 				iterator_type tmp = this->_current - 1;
-				return (tmp);
+				return (&*tmp);
 			}
 
 			reverse_iterator	&operator++(void) {
@@ -140,8 +140,12 @@ namespace ft {
 				return (*this);
 			}
 
-			reference operator[](difference_type n) const {
+			reference	operator[](difference_type n) const {
 				return *(this->_current - n - 1);
+			}
+
+			operator	reverse_iterator<Iterator const>(void) const {
+				return (reverse_iterator<Iterator const>(this->_current));
 			}
 
 		private:
