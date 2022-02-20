@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/20 16:19:14 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/20 23:49:16 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,8 +251,8 @@ namespace ft {
 			}
 
 			~vector(void) {
-				// clear();
-				this->_alloc.deallocate(&*this->_start, std::distance(this->_start, this->_end_of_storage));
+				clear();
+				this->_alloc.deallocate(&*this->_start, this->capacity());
 			}
 
 			vector<T, Allocator>	&operator=(vector<T,Allocator> const &vct) {
@@ -323,13 +323,18 @@ namespace ft {
 				size_type old_size = this->size();
 				if (new_size < old_size) {
 					iterator new_finish = this->_start + new_size;
-					// this->_destroy_range(new_finish, this->_finish);
+					this->_destroy_range(new_finish, this->_finish);
 					this->_finish = new_finish;
-				} else {
+				} else if (new_size > old_size) {
 					size_type additional_size = new_size - old_size;
+					// std::cout << old_size << std::endl;
+					// std::cout << new_size << std::endl;
+					// std::cout << this->capacity() << std::endl;
 					if (new_size > this->capacity()) 
-						this->reserve(new_size + additional_size);
-					std::uninitialized_fill_n(this->_finish, additional_size, val);
+						this->reserve(new_size);
+					// else
+						// this->reserve(this->capacity() * 2);
+					std::uninitialized_fill_n(this->_start + old_size, additional_size, val);
 					this->_finish += additional_size;
 				}
 			}
@@ -342,18 +347,15 @@ namespace ft {
 				return (this->_start == this->_finish);
 			}
 
-			void	reserve(size_type n) {
-				if (n > this->max_size())
+			void	reserve(size_type new_capacity) {
+				if (new_capacity > this->max_size())
 					throw std::length_error("vector::reserve");
 				size_type capacity = this->capacity();
-				if (n > capacity) {
-					size_type new_capacity = capacity == 0 ? n : capacity + n - 1;
-					while (new_capacity < capacity + n - 1)
-						new_capacity *= 2;
+				if (new_capacity > capacity) {
 					size_type old_size = this->size();
 					pointer tmp = this->_alloc.allocate(new_capacity);
-					// this->_destroy_range(this->_start, this->_finish);
 					std::uninitialized_copy(this->_start, this->_finish, tmp);
+					this->_destroy_range(this->_start, this->_finish);
 					this->_alloc.deallocate(&*this->_start, capacity);
 					this->_start = tmp;
 					this->_finish = this->_start + old_size;
@@ -406,23 +408,38 @@ namespace ft {
 			}
 
 			void pop_back(void) {
-				this->erase(this->_finish);
+				this->erase(this->_finish - 1);
 			}
 
 			iterator	insert(iterator position, T const &val) {
 				difference_type index = std::distance(this->_start, position);
-				if (this->_finish == this->_end_of_storage)
-					this->reserve(this->capacity() + 1);
+				if (this->_finish == this->_end_of_storage) {
+					size_type capacity = this->capacity();
+					size_type new_capacity = capacity == 0 ? 1 : capacity * 2;
+					this->reserve(new_capacity);
+				}
 				this->_vector_shift_right(this->_start + index, 1);
-				this->_alloc.construct(&*(this->_start) + index, val);
+				this->_alloc.construct(&*(this->_start + index), val);
 				++this->_finish;
 				return (this->_start + index);
 			}
 
 			void	insert(iterator position, size_type n, T const &val) {
 				difference_type index = std::distance(this->_start, position);
-				if (this->size() + n > this->capacity())
-					this->reserve(this->capacity() + n);
+				if (this->size() + n > this->capacity()) {
+					size_type new_capacity;
+					size_type capacity = this->capacity();
+					// if (capacity == 0)
+					new_capacity = std::max(n + 1, this->size());
+					// else
+						// new_capacity = capacity;
+					// std::cout << new_capacity << std::endl;
+					// std::cout << capacity << std::endl;
+					// std::cout << n << std::endl;
+					while (new_capacity < capacity + n - 1)
+						new_capacity *= 2;
+					this->reserve(new_capacity);
+				}
 				this->_vector_shift_right(this->_start + index, n);
 				std::uninitialized_fill_n(this->_start + index, n, val);
 				this->_finish += n;
@@ -431,27 +448,44 @@ namespace ft {
 			template <typename InputIterator>
 			typename enable_if<!is_integral<InputIterator>::value, void>::type
 			insert(iterator position, InputIterator first, InputIterator last) {
-				difference_type index = std::distance(this->_start, position);
-				difference_type additional_size = std::distance(first, last);
-				if (this->size() + additional_size > this->capacity())
-					this->reserve(this->capacity() + additional_size);
+				size_type index = std::distance(this->_start, position);
+				size_type additional_size = std::distance(first, last);
+				if (this->size() + additional_size > this->capacity()) {
+					size_type new_capacity;
+					size_type capacity = this->capacity();
+					// if (capacity == 0)
+					// new_capacity = capacity;
+					new_capacity = additional_size + 1 > this->size() ? additional_size + 1 : this->size();
+					// std::cout << new_capacity << std::endl;
+					// std::cout << capacity << std::endl;
+					// std::cout << additional_size << std::endl;
+					// else
+						// new_capacity = capacity;
+					while (new_capacity < capacity + additional_size - 1)
+						new_capacity *= 2;
+					this->reserve(new_capacity);
+				}
 				this->_vector_shift_right(this->_start + index, additional_size);
 				std::uninitialized_copy(first, last, this->_start + index);
 				this->_finish += additional_size;
 			}
 
 			iterator	erase(iterator position) {
-				this->_vector_shift_left(position, 1);
-				// this->_alloc.destroy(this->_finish);
-				--this->_finish;
+				if (position != this->_finish) {
+					this->_alloc.destroy(&*position);
+					this->_vector_shift_left(position, 1);
+					--this->_finish;
+				}
 				return (position);
 			}
 
 			iterator	erase(iterator first, iterator last) {
-				difference_type size = std::distance(first, last); 
-				this->_vector_shift_left(first, size);
-				// this->_destroy_range(first, this->_finish);
-				this->_finish -= size;
+				if (first != last) {
+					difference_type size = std::distance(first, last); 
+					this->_destroy_range(first, last);
+					this->_vector_shift_left(first, size);
+					this->_finish -= size;
+				}
 				return (first);
 			}
 
@@ -477,7 +511,7 @@ namespace ft {
 				if (this->empty() == false) {
 					for (iterator ite = this->_finish - 1; ite >= position; --ite) {
 						this->_alloc.construct(&*(ite + offset), *ite);
-						// this->_alloc.destroy(finish);
+						this->_alloc.destroy(&*ite);
 					}
 				}
 			}
@@ -486,15 +520,15 @@ namespace ft {
 				if (this->empty() == false) {
 					for (; position + offset < this->_finish; ++position) {
 						this->_alloc.construct(&*position, *(position + offset));
-						// this->_alloc.destroy(position + offset);
+						this->_alloc.destroy(&*(position + offset));
 					}
 				}
 			}
 
-			// void	_destroy_range(iterator first, iterator last) {
-				// for (; first != last; ++first)
-					// this->_alloc.destroy(first);
-			// }
+			void	_destroy_range(iterator first, iterator last) {
+				for (iterator it = first; it != last; ++it)
+					this->_alloc.destroy(&*it);
+			}
 	};
 
 	template <typename T, typename Allocator>

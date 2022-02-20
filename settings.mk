@@ -6,11 +6,11 @@
 #    By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 21:06:11 by rotrojan          #+#    #+#              #
-#    Updated: 2022/02/20 14:35:14 by rotrojan         ###   ########.fr        #
+#    Updated: 2022/02/20 20:54:08 by rotrojan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-MAIN = my_main.cpp
+MAIN = mazoise_main.cpp
 
 # The name of the binary
 NAME = ft_containers_test
@@ -29,13 +29,13 @@ LIBS =
 OBJS_DIR = .objs
 
 # The file where make will look for all the header files
-INCLUDES_DIR = include# containers_test/srcs/vector 
+INCLUDES_DIR = include 42TESTERS-CONTAINERS containers_test/srcs/vector 
 
 # The C++ compiler
 CXX = c++
 
 # The C++ compilation flags
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98# -pedantic
 
 # The characters and the length of the progress bar will adjust automatically
 PROGRESS_BAR = -------------------------------------------------------------------
