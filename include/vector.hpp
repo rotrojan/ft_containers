@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/20 23:49:16 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/21 18:50:04 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,7 +331,14 @@ namespace ft {
 					// std::cout << new_size << std::endl;
 					// std::cout << this->capacity() << std::endl;
 					if (new_size > this->capacity()) 
-						this->reserve(new_size);
+					{
+						size_type new_capacity = this->capacity() * 2;
+						if (new_capacity < new_size)
+							new_capacity = new_size;
+						// while (new_capacity < new_size)
+							// new_capacity *= 2;
+						this->reserve(new_capacity);
+					}
 					// else
 						// this->reserve(this->capacity() * 2);
 					std::uninitialized_fill_n(this->_start + old_size, additional_size, val);
@@ -427,17 +434,9 @@ namespace ft {
 			void	insert(iterator position, size_type n, T const &val) {
 				difference_type index = std::distance(this->_start, position);
 				if (this->size() + n > this->capacity()) {
-					size_type new_capacity;
-					size_type capacity = this->capacity();
-					// if (capacity == 0)
-					new_capacity = std::max(n + 1, this->size());
-					// else
-						// new_capacity = capacity;
-					// std::cout << new_capacity << std::endl;
-					// std::cout << capacity << std::endl;
-					// std::cout << n << std::endl;
-					while (new_capacity < capacity + n - 1)
-						new_capacity *= 2;
+					size_type new_capacity = this->size() + n;
+					// if (this->size() == 0)
+						// --new_capacity;
 					this->reserve(new_capacity);
 				}
 				this->_vector_shift_right(this->_start + index, n);
@@ -450,19 +449,23 @@ namespace ft {
 			insert(iterator position, InputIterator first, InputIterator last) {
 				size_type index = std::distance(this->_start, position);
 				size_type additional_size = std::distance(first, last);
+				// std::cout << "size " << this->size() << std::endl;
 				if (this->size() + additional_size > this->capacity()) {
 					size_type new_capacity;
-					size_type capacity = this->capacity();
+					new_capacity = this->size() + additional_size;
+					// if (this->size() != 0)
+						// --new_capacity;
 					// if (capacity == 0)
 					// new_capacity = capacity;
-					new_capacity = additional_size + 1 > this->size() ? additional_size + 1 : this->size();
+					// new_capacity = additional_size > this->size() ? additional_size : this->size();
+					// new_capacity = std::max(additional_size, this->size());
 					// std::cout << new_capacity << std::endl;
 					// std::cout << capacity << std::endl;
 					// std::cout << additional_size << std::endl;
 					// else
 						// new_capacity = capacity;
-					while (new_capacity < capacity + additional_size - 1)
-						new_capacity *= 2;
+					// while (new_capacity + 1 < capacity + additional_size)
+						// new_capacity *= 2;
 					this->reserve(new_capacity);
 				}
 				this->_vector_shift_right(this->_start + index, additional_size);
