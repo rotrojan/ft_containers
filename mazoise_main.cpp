@@ -6,7 +6,7 @@
 /*   By: mchardin <mchardin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/02 13:07:06 by hbaudet           #+#    #+#             */
-/*   Updated: 2022/02/21 18:32:35 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/22 12:43:02 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,12 +138,12 @@ void	insert_tests()
 	print_vector<T>(test);
 	test.insert(test.end() - 1, 1, 70);
 	print_vector<T>(test);
-	// test.insert(test.begin() + 412, test2.begin(), test2.end());
-	// print_vector<T>(test);
-	// test.insert(test.begin() + 6, test2.begin(), test2.end());
-	// print_vector<T>(test);
-	// test.insert(test.end(), test2.begin(), test2.end());
-	// print_vector<T>(test);
+	test.insert(test.begin() + 412, test2.begin(), test2.end());
+	print_vector<T>(test);
+	test.insert(test.begin() + 6, test2.begin(), test2.end());
+	print_vector<T>(test);
+	test.insert(test.end(), test2.begin(), test2.end());
+	print_vector<T>(test);
 }
 
 template <class T>
@@ -281,20 +281,20 @@ void	awesome_tests(void)
 
 int main()
 {
-	push_pop_back_tests<int>();
-	resize_tests<int>();
+	// push_pop_back_tests<int>();
+	// resize_tests<int>();
 	insert_tests<int>();
-	reserve_tests<int>();
-	copy_swap_tests<int>();
-	reverse_it_tests<int>();
-	erase_clear_tests<int>();
-	max_size_tests();
-	awesome_tests();
-	push_pop_back_tests<Awesome>();
-	resize_tests<Awesome>();
+	// reserve_tests<int>();
+	// copy_swap_tests<int>();
+	// reverse_it_tests<int>();
+	// erase_clear_tests<int>();
+	// max_size_tests();
+	// awesome_tests();
+	// push_pop_back_tests<Awesome>();
+	// resize_tests<Awesome>();
 	insert_tests<Awesome>();
-	reserve_tests<Awesome>();
-	copy_swap_tests<Awesome>();
-	reverse_it_tests<Awesome>();
-	erase_clear_tests<Awesome>();
+	// reserve_tests<Awesome>();
+	// copy_swap_tests<Awesome>();
+	// reverse_it_tests<Awesome>();
+	// erase_clear_tests<Awesome>();
 }

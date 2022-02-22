@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/21 18:50:04 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/22 12:55:58 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -327,20 +327,13 @@ namespace ft {
 					this->_finish = new_finish;
 				} else if (new_size > old_size) {
 					size_type additional_size = new_size - old_size;
-					// std::cout << old_size << std::endl;
-					// std::cout << new_size << std::endl;
-					// std::cout << this->capacity() << std::endl;
 					if (new_size > this->capacity()) 
 					{
 						size_type new_capacity = this->capacity() * 2;
 						if (new_capacity < new_size)
 							new_capacity = new_size;
-						// while (new_capacity < new_size)
-							// new_capacity *= 2;
 						this->reserve(new_capacity);
 					}
-					// else
-						// this->reserve(this->capacity() * 2);
 					std::uninitialized_fill_n(this->_start + old_size, additional_size, val);
 					this->_finish += additional_size;
 				}
@@ -432,11 +425,13 @@ namespace ft {
 			}
 
 			void	insert(iterator position, size_type n, T const &val) {
+				if (n == 0)
+					return ;
 				difference_type index = std::distance(this->_start, position);
 				if (this->size() + n > this->capacity()) {
-					size_type new_capacity = this->size() + n;
-					// if (this->size() == 0)
-						// --new_capacity;
+					size_type new_capacity = this->capacity() > 0 ? this->size() * 2 : 1;
+					if (new_capacity < this->size() + n)
+						new_capacity = this->size() + n;
 					this->reserve(new_capacity);
 				}
 				this->_vector_shift_right(this->_start + index, n);
@@ -447,25 +442,14 @@ namespace ft {
 			template <typename InputIterator>
 			typename enable_if<!is_integral<InputIterator>::value, void>::type
 			insert(iterator position, InputIterator first, InputIterator last) {
+				if (first == last)
+					return ;
 				size_type index = std::distance(this->_start, position);
 				size_type additional_size = std::distance(first, last);
-				// std::cout << "size " << this->size() << std::endl;
 				if (this->size() + additional_size > this->capacity()) {
-					size_type new_capacity;
-					new_capacity = this->size() + additional_size;
-					// if (this->size() != 0)
-						// --new_capacity;
-					// if (capacity == 0)
-					// new_capacity = capacity;
-					// new_capacity = additional_size > this->size() ? additional_size : this->size();
-					// new_capacity = std::max(additional_size, this->size());
-					// std::cout << new_capacity << std::endl;
-					// std::cout << capacity << std::endl;
-					// std::cout << additional_size << std::endl;
-					// else
-						// new_capacity = capacity;
-					// while (new_capacity + 1 < capacity + additional_size)
-						// new_capacity *= 2;
+					size_type new_capacity = this->capacity() > 0 ? this->size() * 2 : 1;
+					if (new_capacity < this->size() + additional_size)
+						new_capacity = this->size() + additional_size;
 					this->reserve(new_capacity);
 				}
 				this->_vector_shift_right(this->_start + index, additional_size);
