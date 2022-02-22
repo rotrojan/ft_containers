@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 22:49:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/17 23:41:02 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/22 19:12:37 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define ALGORITHM_HPP
 
 namespace ft {
+
 	template <typename InputIterator1, typename InputIterator2>
 	bool equal( InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 ) {
 		while (first1 != last1) {
