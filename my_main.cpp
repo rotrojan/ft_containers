@@ -6,21 +6,23 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/19 18:31:15 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/22 19:29:24 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "vector.hpp"
 #include "vector.hpp"
+#include "stack.hpp"
 #include <iostream>
 #include <vector>
 // using namespace ft;
 
 int main(void) {
 
-	ft::vector<int> vec(1, 42);
-	ft::vector<int>::const_iterator it(vec.begin());
-	std::cout << *it << std::endl;
+	ft::stack<int> stack;
+	// ft::vector<int> vec(1, 42);
+	// ft::vector<int>::const_iterator it(vec.begin());
+	// std::cout << *it << std::endl;
 	// ft::vector<int> vec_a;
 	// vec_a.insert(vec_a.begin(), 10, 42);
 	// ft::vector<int>::const_iterator it_a(vec_a.begin());
