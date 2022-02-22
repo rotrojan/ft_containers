@@ -6,11 +6,11 @@
 #    By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 21:06:11 by rotrojan          #+#    #+#              #
-#    Updated: 2022/02/20 20:54:08 by rotrojan         ###   ########.fr        #
+#    Updated: 2022/02/22 18:05:20 by rotrojan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-MAIN = mazoise_main.cpp
+MAIN = my_main.cpp
 
 # The name of the binary
 NAME = ft_containers_test

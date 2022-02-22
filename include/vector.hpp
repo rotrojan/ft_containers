@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/22 12:55:58 by bigo             ###   ########.fr       */
+/*   Updated: 2022/02/22 18:04:10 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@
 # include "enable_if.hpp"
 # include "is_integral.hpp"
 # include "algorithm.hpp"
-// # include "VectorIterator.hpp"
-# include <iostream>
 
 namespace ft {
 
@@ -37,8 +35,8 @@ namespace ft {
 		public:
 
 			typedef T value_type;
-			typedef T *pointer;
-			typedef T &reference;
+			typedef T* pointer;
+			typedef T& reference;
 			typedef std::random_access_iterator_tag iterator_category;
 			typedef ptrdiff_t difference_type;
 
@@ -129,10 +127,6 @@ namespace ft {
 				return (this->_current);
 			}
 
-			// operator	pointer(void) {
-				// return (this->_current);
-			// }
-
 			operator	VectorIterator<const T>(void) const {
 				return (VectorIterator<const T>(this->_current));
 			}
@@ -154,6 +148,7 @@ namespace ft {
 	}
 
 	// Random access Iterator
+
 	template <typename T, typename U>
 	bool	operator<=(VectorIterator<T> const &lhs,
 	VectorIterator<U> const &rhs) {
@@ -297,8 +292,9 @@ namespace ft {
 			reverse_iterator	rbegin(void) {
 				return (reverse_iterator(this->_finish));
 			}
+
 			const_reverse_iterator	rbegin(void) const {
-				return (const_reverse_iterator(this->_finsh));
+				return (const_reverse_iterator(this->_finish));
 			}
 
 			reverse_iterator	rend(void) {
@@ -403,8 +399,8 @@ namespace ft {
 
 			// modifiers:
 
-			void push_back(const T& x) {
-				this->insert(this->_finish, x);
+			void push_back(T const &val) {
+				this->insert(this->_finish, val);
 			}
 
 			void pop_back(void) {
