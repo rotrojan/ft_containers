@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/22 18:04:10 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/23 21:12:21 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,7 @@ namespace ft {
 			typedef std::random_access_iterator_tag iterator_category;
 			typedef ptrdiff_t difference_type;
 
-			VectorIterator(void): _current(NULL) {
-			}
-
-			VectorIterator(pointer ptr): _current(ptr) {
+			VectorIterator(pointer ptr = NULL): _current(ptr) {
 			}
 
 			VectorIterator(VectorIterator const &vit): _current(vit._current) {
