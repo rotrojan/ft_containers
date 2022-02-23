@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/23 00:48:28 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/23 01:36:00 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,24 @@ namespace ft {
 	}
 
 	/*
+	** red-black tree structure
+	*/
+
+	enum e_color {
+		RED = false,
+		BLACK = true
+	};
+
+	template <typename Key, typename T>
+	struct rb_tree_node {
+		enum e_color color;
+		pair<Key, T> *parent;
+		pair<Key, T> *left;
+		pair<Key, T> *right;
+		pair<Key, T> data;
+	};
+
+	/*
 	** map container
 	*/
 
@@ -105,8 +123,8 @@ namespace ft {
 		typedef Key key_type;
 		typedef pair<Key const, T> value_type;
 		typedef Compare key_compare;
-		typedef iterator;
-		typedef const_iterator;
+		typedef TO_DEFINE iterator;
+		typedef TO_DEFINE const_iterator;
 		typedef Allocator<value_type>::pointer pointer;
 		typedef Allocator<value_type>::reference reference;
 		typedef Allocator<value_type>::const_reference const_reference;
@@ -117,24 +135,16 @@ namespace ft {
 
 
 		class value_compare: public binary_function<value_type, value_type, bool> {
-
 			private:
-
 				friend class map;
-
 			protected:
-
 				Compare comp;
-
 				value_compare(Compare c): comp(c) {
 				}
-
 			public:
-
 				bool	operator()(value_type const &lhs, value_type const &rhs) {
-					return comp(lhs.first, rhs.first);
+					return (comp(lhs.first, rhs.first));
 				}
-
 		};
 
 		// allocation/deallocation:
