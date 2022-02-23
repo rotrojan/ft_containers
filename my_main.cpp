@@ -6,20 +6,24 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/22 19:29:24 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/23 21:46:10 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "vector.hpp"
 #include "vector.hpp"
 #include "stack.hpp"
+#include "rb_tree.hpp"
 #include <iostream>
 #include <vector>
 // using namespace ft;
 
 int main(void) {
 
-	ft::stack<int> stack;
+	rb_node<int>
+	// ft::tree<int> tree;
+	// tree.insert(1);
+	// ft::stack<int> stack;
 	// ft::vector<int> vec(1, 42);
 	// ft::vector<int>::const_iterator it(vec.begin());
 	// std::cout << *it << std::endl;

@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/23 01:36:00 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/23 19:59:28 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,24 +89,6 @@ namespace ft {
 	pair<T, U> make_pair(T first, U second) {
 		return (pair<T, U>(first, second));
 	}
-
-	/*
-	** red-black tree structure
-	*/
-
-	enum e_color {
-		RED = false,
-		BLACK = true
-	};
-
-	template <typename Key, typename T>
-	struct rb_tree_node {
-		enum e_color color;
-		pair<Key, T> *parent;
-		pair<Key, T> *left;
-		pair<Key, T> *right;
-		pair<Key, T> data;
-	};
 
 	/*
 	** map container
