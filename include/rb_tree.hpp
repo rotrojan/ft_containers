@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/24 18:53:46 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/24 22:49:37 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,20 @@ namespace ft {
 			node_ptr nil;
 			allocator_type _alloc;
 
-
 		public:
 			rb_tree(allocator_type const &alloc = allocator_type())
 			: _alloc(alloc) {
 				this->nil = this->_alloc.allocate(1);
 				this->_alloc.construct(this->nil, node(BLACK, this->nil, this->nil, this->nil));
 				this->root = this->nil;
+			}
+
+			~rb_tree(void) {
+				while (this->root != this->nil) {
+					node_ptr root = this->root;
+					this->erase(root);
+				}
+				delete_node(this->nil);
 			}
 
 			void	insert(value_type val) {
@@ -102,6 +109,164 @@ namespace ft {
 				else
 					prev->right = new_node;
 				this->_fix_insert(new_node);
+			}
+
+			void	transplant(node_ptr to_cut, node_ptr to_connect) {
+				if (to_cut->parent == this->nil)
+					this->root = to_connect;
+				else if (to_cut == to_cut->parent->left)
+					to_cut->parent->left = to_connect;
+				else
+					to_cut->parent->right = to_connect;
+				to_connect->parent = to_cut->parent;
+			}
+
+			void erase(value_type val) {
+				node_ptr node;
+				node = this->search(val);
+				if (node != this->nil)
+					this->erase(node);
+			}
+
+			void	erase(node_ptr node) {
+				node_ptr tmp = node;
+				node_ptr x;
+				t_color tmp_color = tmp->color;
+				if (node->left == this->nil) {
+					x = node->right;
+					transplant(node, node->right);
+				} else if (node->right == this->nil) {
+					x = node->left;
+					transplant(node, node->left);
+				} else {
+					tmp = _min(node->right);
+					tmp_color = tmp->color;
+					x = tmp->right;
+					if (tmp->parent == node)
+						x->parent = tmp;
+					else {
+						transplant(tmp, tmp->right);
+						tmp->right = node->right;
+						tmp->right->parent = tmp;
+					}
+					transplant(node, tmp);
+					tmp->left = node->left;
+					tmp->left->parent = tmp;
+				}
+				this->delete_node(node);
+				if (tmp_color == BLACK)
+					this->_fix_erase(x);
+			}
+
+			void	_fix_erase(node_ptr x) {
+				node_ptr w;
+				while (x != this->root && x->color == BLACK) {
+					if (x == x->parent->left) {
+						w = x->parent->right;
+						if (w->color == RED) {
+							w->color = BLACK;
+							x->parent->color = RED;
+							this->_left_rotate(x->parent);
+							w = x->parent->right;
+						}
+						if (w->left->color == BLACK && w->right->color == BLACK) {
+							w->color = RED;
+							x = x->parent;
+						} else {
+							if (w->right->color == BLACK) {
+								w->left->color = BLACK;
+								w->color = RED;
+								this->_right_rotate(w);
+								w = x->parent->right;
+							}
+							w->color = x->parent->color;
+							x->parent->color = BLACK;
+							w->right->color = BLACK;
+							this->_left_rotate(x->parent);
+							x = this->root;
+						}
+					} else {
+						w = x->parent->left;
+						if (w->color == RED) {
+							w->color = BLACK;
+							x->parent->color = RED;
+							this->_right_rotate(x->parent);
+							w = x->parent->left;
+						}
+						if (w->right->color == BLACK && w->left->color == BLACK) {
+							w->color = RED;
+							x = x->parent;
+						} else {
+							if (w->left->color == BLACK) {
+								w->right->color = BLACK;
+								w->color = RED;
+								this->_left_rotate(w);
+								w = x->parent->left;
+							}
+							w->color = x->parent->color;
+							x->parent->color = BLACK;
+							w->left->color = BLACK;
+							this->_right_rotate(x->parent);
+							x = this->root;
+						}
+					}
+				}
+				x->color = BLACK;
+			}
+
+			node_ptr	prev(node_ptr node) {
+				if (node->left != this->nil)
+					return (this->_max(node->right));
+				node_ptr current = node->parent;
+				while (current != this->nil && node != current->left) {
+					node = current;
+					current = current->parent;
+				}
+				return (current);
+			}
+
+			node_ptr	next(node_ptr node) {
+				if (node->right != this->nil)
+					return (this->_min(node->right));
+				node_ptr current = node->parent;
+				while (current != this->nil && node != current->right) {
+					node = current;
+					current = current->parent;
+				}
+				return (current);
+			}
+
+			node_ptr	search(value_type value) {
+				node_ptr current = this->root;
+				while (current != this->nil) {
+					if (value < current->data)
+						current = current->left;
+					else if (value > current->data)
+						current = current->right;
+					else
+						break ;
+				}
+				return (current);
+			}
+
+			value_type	max(void) {
+				return (this->_max(this->root)->data);
+			}
+
+			node_ptr	_max(node_ptr current) {
+				while (current->left != this->nil)
+					current = current->left;
+				return (current);
+			}
+
+			value_type	min(void) {
+				return (this->_min(this->root)->data);
+			}
+
+			node_ptr	_min(node_ptr current) {
+				while (current->left != this->nil)
+					current = current->left;
+				return (current);
 			}
 
 			void	_fix_insert(node_ptr node) {
@@ -201,6 +366,12 @@ namespace ft {
 				new_node->right = this->nil;
 				new_node->left = this->nil;
 				return (new_node);
+			}
+
+			void	delete_node(node_ptr node) {
+				this->_alloc.destroy(node);
+				this->_alloc.deallocate(node, 1);
+				// (void)node;
 			}
 
 			// debug utils
