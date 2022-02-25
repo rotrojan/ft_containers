@@ -6,24 +6,28 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/24 22:50:49 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/25 21:34:48 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "vector.hpp"
 #include "vector.hpp"
 #include "stack.hpp"
+#include "map.hpp"
 #include "rb_tree.hpp"
+
 #include <iostream>
 #include <vector>
+// #include <functional>
 // using namespace ft;
 
 int main(void) {
 
+	ft::map<int, int> map;
 	// ft::rb_node<int> node;
-	ft::rb_tree<int> tree;
-	for (int i = -50; i < 50; i++)
-		tree.insert(i);
+	// ft::rb_tree<int> tree;
+	// for (int i = -50; i < 50; i++)
+		// tree.insert(i);
 	// tree.insert(2);
 	// tree.insert(1);
 	// tree.erase(1);
@@ -35,7 +39,7 @@ int main(void) {
 	// tree.insert(-67);
 	// tree.insert(54);
 	// std::cout << tree.root->data << std::endl;
-	tree.print();
+	// tree.print();
 	// tree.erase(13);
 	// tree.print();
 	// std::cout << std::endl;

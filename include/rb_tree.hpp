@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/24 22:49:37 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/25 23:04:31 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,33 @@ namespace ft {
 	};
 
 	/*
+	** rb_treeIterator class
+	*/
+
+	template <typename T>
+	class rb_treeIterator {
+
+		typedef T value_type;
+		typedef T *pointer;
+		typedef T &reference;
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef std::ptrdiff_t difference_type;
+
+		private:
+			pair<T, U>	*_current;
+
+		public:
+			rb_treeIterator(void): _current(NULL) {
+			}
+
+			rb_treeIterator(
+	};
+
+	/*
 	** red-black tree structure
 	*/
 
-	template <typename T, typename Allocator = std::allocator<rb_node<T> > >
+	template <typename T, typename Compare = std::less<T>, typename Allocator = std::allocator<rb_node<T> > >
 	class rb_tree {
 
 		public:
@@ -67,16 +90,18 @@ namespace ft {
 			typedef rb_node<T> *node_ptr;
 			typedef Allocator allocator_type;
 			typedef T value_type;
+			typedef Compare compare_type;
 
 		// private:
 		public:
 			node_ptr root;
 			node_ptr nil;
 			allocator_type _alloc;
+			compare_type _compare;
 
 		public:
-			rb_tree(allocator_type const &alloc = allocator_type())
-			: _alloc(alloc) {
+			rb_tree(allocator_type const &alloc = allocator_type(), compare_type const &compare = compare_type())
+			: _alloc(alloc), _compare(compare) {
 				this->nil = this->_alloc.allocate(1);
 				this->_alloc.construct(this->nil, node(BLACK, this->nil, this->nil, this->nil));
 				this->root = this->nil;
@@ -96,7 +121,7 @@ namespace ft {
 				node_ptr current = this->root;
 				while (current != this->nil) {
 					prev = current;
-					if (new_node->data < current->data)
+					if (this->_compare(new_node->data, current->data))
 						current = current->left;
 					else
 						current = current->right;
@@ -104,7 +129,7 @@ namespace ft {
 				new_node->parent = prev;
 				if (prev == this->nil)
 					this->root = new_node;
-				else if (new_node->data < prev->data)
+				else if (this->_compare(new_node->data, prev->data))
 					prev->left = new_node;
 				else
 					prev->right = new_node;
@@ -239,7 +264,7 @@ namespace ft {
 			node_ptr	search(value_type value) {
 				node_ptr current = this->root;
 				while (current != this->nil) {
-					if (value < current->data)
+					if (this->_compare(value, current->data))
 						current = current->left;
 					else if (value > current->data)
 						current = current->right;
