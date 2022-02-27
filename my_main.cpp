@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/25 21:34:48 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/27 01:42:54 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,28 @@
 
 int main(void) {
 
-	ft::map<int, int> map;
+	// ft::vector<int> vec;
+	// for (int i = 0; i < 100000000; ++i)
+		// vec.push_back(i);
+	// while (vec.empty() != false)
+		// vec.pop_back();
+	// ft::map<int, int> map;
 	// ft::rb_node<int> node;
-	// ft::rb_tree<int> tree;
-	// for (int i = -50; i < 50; i++)
-		// tree.insert(i);
+	ft::rb_tree<int> tree;
+	for (int i = 2; i < 12; i++)
+		tree.insert(i);
+	ft::rb_tree<int>::iterator it = tree.min();
+	ft::rb_tree<int>::iterator ite = tree.max();
+		int i = 0;
+	for (; it != ite; it++)
+	{
+		std::cout << *it << std::endl;
+		i++;
+		if (i == 15)
+			break ;
+	}
+	// it++;
+	std::cout << *it << std::endl;
 	// tree.insert(2);
 	// tree.insert(1);
 	// tree.erase(1);

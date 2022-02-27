@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/25 23:04:31 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/27 01:54:28 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,16 +67,116 @@ namespace ft {
 		typedef T &reference;
 		typedef std::bidirectional_iterator_tag iterator_category;
 		typedef std::ptrdiff_t difference_type;
+		typedef rb_node<T> *node_ptr;
 
 		private:
-			pair<T, U>	*_current;
+			node_ptr _current;
 
 		public:
 			rb_treeIterator(void): _current(NULL) {
 			}
 
-			rb_treeIterator(
+			rb_treeIterator(node_ptr node): _current(node) {
+			}
+
+			rb_treeIterator(rb_treeIterator const &rbtit): _current(rbtit._current) {
+			}
+
+			rb_treeIterator	&operator=(rb_treeIterator const &rhs) {
+				if (this != &rhs)
+					this->_current = rhs.current;
+				return (*this);
+			}
+
+			// Forward iterator requirements
+
+			rb_treeIterator	&operator++(void) {
+				if (this->_is_nil(this->_current->right) == false) {
+					this->_current = this->_min(this->_current->right);
+				} else {
+					node_ptr current = this->_current->parent;
+					while (this->_is_nil(current) == false && this->_current == current->right) {
+						this->_current = current;
+						current = current->parent;
+					}
+					this->_current = _current;
+				}
+				return (*this);
+			}
+
+			node_ptr	&_max(node_ptr &node) {
+				while (this->_is_nil(node->right))
+					node = node->right;
+				return (node);
+			}
+
+
+			node_ptr	&_min(node_ptr &node) {
+				while (this->_is_nil(node->left))
+					node = node->left;
+				return (node);
+			}
+
+			rb_treeIterator	operator++(int) {
+				rb_treeIterator tmp(this->_current);
+				this->operator++();
+				return (tmp);
+			}
+
+			pointer	operator->(void) {
+				return (this->_current->data);
+			}
+
+			reference operator*(void) {
+				return (this->_current->data);
+			}
+
+			// Bidirectional iterator requirements
+
+			rb_treeIterator	&operator--(void) {
+				node_ptr current = this->_current;
+				if (this->_is_nil(current->left) == false) {
+					current = current->left;
+					while (this->_is_nil(current->right) == false)
+						current = current->right;
+					this->_current = current;
+				} else {
+					current = current->parent;
+					while (this->_is_nil(current) == false && this->_current == current->left) {
+						this->_current = current;
+						current = current->parent;
+					}
+					this->_current = _current;
+				}
+				return (*this);
+			}
+
+			bool	operator==(rb_treeIterator const &rhs) {
+				return (this->_current == rhs._current);
+			}
+
+
+			bool	operator!=(rb_treeIterator const &rhs) {
+				return (this->_current != rhs._current);
+			}
+
+			rb_treeIterator	operator--(int) {
+				rb_treeIterator tmp(this->_current);
+				--this;
+				return (tmp);
+			}
+
+		private:
+			bool	_is_nil(node_ptr node) {
+				return (node->parent == NULL && node->left == NULL && node->right == NULL);
+			}
+
 	};
+
+	// template <typename It1, typename It2>
+	// bool	operator==(rbtree_Iterator<It1> const &lhs, rbtree_Iterator<It2> const &rhs) {
+		// return ();
+	// }
 
 	/*
 	** red-black tree structure
@@ -91,9 +191,10 @@ namespace ft {
 			typedef Allocator allocator_type;
 			typedef T value_type;
 			typedef Compare compare_type;
+			typedef rb_treeIterator<T> iterator;
+			typedef rb_treeIterator<T> const const_iterator;
 
-		// private:
-		public:
+		private:
 			node_ptr root;
 			node_ptr nil;
 			allocator_type _alloc;
@@ -103,7 +204,7 @@ namespace ft {
 			rb_tree(allocator_type const &alloc = allocator_type(), compare_type const &compare = compare_type())
 			: _alloc(alloc), _compare(compare) {
 				this->nil = this->_alloc.allocate(1);
-				this->_alloc.construct(this->nil, node(BLACK, this->nil, this->nil, this->nil));
+				this->_alloc.construct(this->nil, node(BLACK, NULL, NULL, NULL));
 				this->root = this->nil;
 			}
 
@@ -136,7 +237,7 @@ namespace ft {
 				this->_fix_insert(new_node);
 			}
 
-			void	transplant(node_ptr to_cut, node_ptr to_connect) {
+			void	_transplant(node_ptr to_cut, node_ptr to_connect) {
 				if (to_cut->parent == this->nil)
 					this->root = to_connect;
 				else if (to_cut == to_cut->parent->left)
@@ -159,10 +260,10 @@ namespace ft {
 				t_color tmp_color = tmp->color;
 				if (node->left == this->nil) {
 					x = node->right;
-					transplant(node, node->right);
+					_transplant(node, node->right);
 				} else if (node->right == this->nil) {
 					x = node->left;
-					transplant(node, node->left);
+					_transplant(node, node->left);
 				} else {
 					tmp = _min(node->right);
 					tmp_color = tmp->color;
@@ -170,11 +271,11 @@ namespace ft {
 					if (tmp->parent == node)
 						x->parent = tmp;
 					else {
-						transplant(tmp, tmp->right);
+						_transplant(tmp, tmp->right);
 						tmp->right = node->right;
 						tmp->right->parent = tmp;
 					}
-					transplant(node, tmp);
+					_transplant(node, tmp);
 					tmp->left = node->left;
 					tmp->left->parent = tmp;
 				}
@@ -239,17 +340,6 @@ namespace ft {
 				x->color = BLACK;
 			}
 
-			node_ptr	prev(node_ptr node) {
-				if (node->left != this->nil)
-					return (this->_max(node->right));
-				node_ptr current = node->parent;
-				while (current != this->nil && node != current->left) {
-					node = current;
-					current = current->parent;
-				}
-				return (current);
-			}
-
 			node_ptr	next(node_ptr node) {
 				if (node->right != this->nil)
 					return (this->_min(node->right));
@@ -274,18 +364,18 @@ namespace ft {
 				return (current);
 			}
 
-			value_type	max(void) {
-				return (this->_max(this->root)->data);
+			node_ptr	max(void) {
+				return (this->_max(this->root));
 			}
 
 			node_ptr	_max(node_ptr current) {
-				while (current->left != this->nil)
-					current = current->left;
+				while (current->right != this->nil)
+					current = current->right;
 				return (current);
 			}
 
-			value_type	min(void) {
-				return (this->_min(this->root)->data);
+			node_ptr	min(void) {
+				return (this->_min(this->root));
 			}
 
 			node_ptr	_min(node_ptr current) {
