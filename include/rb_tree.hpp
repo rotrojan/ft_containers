@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/27 01:54:28 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/28 23:32:19 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,54 +71,42 @@ namespace ft {
 
 		private:
 			node_ptr _current;
+			node_ptr _root;
+			node_ptr _nil;
 
 		public:
-			rb_treeIterator(void): _current(NULL) {
+			rb_treeIterator(void)
+			: _current(NULL), _root(NULL), _nil(NULL) {
 			}
 
-			rb_treeIterator(node_ptr node): _current(node) {
+			rb_treeIterator(node_ptr node, node_ptr root, node_ptr nil)
+			: _current(node), _root(root), _nil(nil) {
 			}
 
-			rb_treeIterator(rb_treeIterator const &rbtit): _current(rbtit._current) {
+			rb_treeIterator(rb_treeIterator const &rbtit)
+			: _current(rbtit._current), _nil(rbtit._nil) {
+			}
+
+			~rb_treeIterator(void) {
 			}
 
 			rb_treeIterator	&operator=(rb_treeIterator const &rhs) {
-				if (this != &rhs)
+				if (this != &rhs) {
 					this->_current = rhs.current;
+					this->_nil = rhs.nil;
+				}
 				return (*this);
 			}
 
 			// Forward iterator requirements
 
 			rb_treeIterator	&operator++(void) {
-				if (this->_is_nil(this->_current->right) == false) {
-					this->_current = this->_min(this->_current->right);
-				} else {
-					node_ptr current = this->_current->parent;
-					while (this->_is_nil(current) == false && this->_current == current->right) {
-						this->_current = current;
-						current = current->parent;
-					}
-					this->_current = _current;
-				}
-				return (*this);
-			}
-
-			node_ptr	&_max(node_ptr &node) {
-				while (this->_is_nil(node->right))
-					node = node->right;
-				return (node);
-			}
-
-
-			node_ptr	&_min(node_ptr &node) {
-				while (this->_is_nil(node->left))
-					node = node->left;
-				return (node);
+				this->_current = this->_next(this->_current);
+					return (*this);
 			}
 
 			rb_treeIterator	operator++(int) {
-				rb_treeIterator tmp(this->_current);
+				rb_treeIterator tmp(this->_current, this->_nil);
 				this->operator++();
 				return (tmp);
 			}
@@ -131,44 +119,62 @@ namespace ft {
 				return (this->_current->data);
 			}
 
-			// Bidirectional iterator requirements
-
-			rb_treeIterator	&operator--(void) {
-				node_ptr current = this->_current;
-				if (this->_is_nil(current->left) == false) {
-					current = current->left;
-					while (this->_is_nil(current->right) == false)
-						current = current->right;
-					this->_current = current;
-				} else {
-					current = current->parent;
-					while (this->_is_nil(current) == false && this->_current == current->left) {
-						this->_current = current;
-						current = current->parent;
-					}
-					this->_current = _current;
-				}
-				return (*this);
-			}
-
 			bool	operator==(rb_treeIterator const &rhs) {
 				return (this->_current == rhs._current);
 			}
 
-
 			bool	operator!=(rb_treeIterator const &rhs) {
-				return (this->_current != rhs._current);
+				return (!(*this == rhs));
+			}
+
+			// Bidirectional iterator requirements
+
+
+			rb_treeIterator	&operator--(void) {
+				this->_current = this->_prev(this->_current);
+					return (*this);
 			}
 
 			rb_treeIterator	operator--(int) {
-				rb_treeIterator tmp(this->_current);
-				--this;
+				rb_treeIterator tmp(this->_current, this->_nil);
+				this->operator--();
 				return (tmp);
 			}
 
+		// utils
 		private:
-			bool	_is_nil(node_ptr node) {
-				return (node->parent == NULL && node->left == NULL && node->right == NULL);
+			node_ptr	_max(node_ptr node) {
+				while (node->right != this->_nil)
+					node = node->right;
+				return (node);
+			}
+
+			node_ptr	_min(node_ptr node) {
+				while (node->left != this->_nil)
+					node = node->left;
+				return (node);
+			}
+
+			node_ptr	_next(node_ptr node) {
+				if (node->right != this->_nil)
+					return (this->_min(node->right));
+				node_ptr parent = node->parent;
+				while (parent != this->_nil && node == parent->right) {
+					node = parent;
+					parent = parent->parent;
+				}
+				return (parent);
+			}
+
+			node_ptr	_prev(node_ptr node) {
+				if (node->left != this->_nil)
+					return (this->_max(node->left));
+				node_ptr parent = node->parent;
+				while (parent != this->_nil && node == parent->left) {
+					node = parent;
+					parent = parent->parent;
+				}
+				return (parent);
 			}
 
 	};
@@ -196,31 +202,89 @@ namespace ft {
 
 		private:
 			node_ptr root;
-			node_ptr nil;
+			node_ptr _nil;
 			allocator_type _alloc;
 			compare_type _compare;
 
 		public:
 			rb_tree(allocator_type const &alloc = allocator_type(), compare_type const &compare = compare_type())
 			: _alloc(alloc), _compare(compare) {
-				this->nil = this->_alloc.allocate(1);
-				this->_alloc.construct(this->nil, node(BLACK, NULL, NULL, NULL));
-				this->root = this->nil;
+				this->_nil = this->_alloc.allocate(1);
+				this->_alloc.construct(this->_nil, node(BLACK, this->_nil, this->_nil, this->_nil));
+				this->root = this->_nil;
 			}
 
 			~rb_tree(void) {
-				while (this->root != this->nil) {
-					node_ptr root = this->root;
-					this->erase(root);
+				clean(this->root);
+				delete_node(this->_nil);
+			}
+
+			void	clean(node_ptr node) {
+				if (node == this->_nil)
+					return ;
+				clean(node->left);
+				clean(node->right);
+				delete_node(node);
+			}
+
+			iterator	begin(void) {
+				return (iterator(this->min(), this->root, this->_nil));
+			}
+
+			iterator	end(void) {
+				// iterator tmp(this->_nil, this->_nil);
+				return (iterator(this->_nil, this->root, this->_nil));
+			}
+
+			// node_ptr	next(node_ptr node) {
+				// if (node->right != this->_nil)
+					// return (this->_min(node->right));
+				// node_ptr current = node->parent;
+				// while (current != this->_nil && node != current->right) {
+					// node = current;
+					// current = current->parent;
+				// }
+				// return (current);
+			// }
+
+			node_ptr	search(value_type value) {
+				node_ptr current = this->root;
+				while (current != this->_nil) {
+					if (this->_compare(value, current->data))
+						current = current->left;
+					else if (value > current->data)
+						current = current->right;
+					else
+						break ;
 				}
-				delete_node(this->nil);
+				return (current);
+			}
+
+			node_ptr	max(void) {
+				return (this->_max(this->root));
+			}
+
+			node_ptr	_max(node_ptr current) {
+				while (current->right != this->_nil)
+					current = current->right;
+				return (current);
+			}
+
+			node_ptr	min(void) {
+				return (this->_min(this->root));
+			}
+
+			node_ptr	_min(node_ptr current) {
+				while (current->left != this->_nil)
+					current = current->left;
+				return (current);
 			}
 
 			void	insert(value_type val) {
-				node_ptr new_node = _new_node(val);
-				node_ptr prev = this->nil;
+				node_ptr new_node = this->_new_node(val);
+				node_ptr prev = this->_nil;
 				node_ptr current = this->root;
-				while (current != this->nil) {
+				while (current != this->_nil) {
 					prev = current;
 					if (this->_compare(new_node->data, current->data))
 						current = current->left;
@@ -228,7 +292,7 @@ namespace ft {
 						current = current->right;
 				}
 				new_node->parent = prev;
-				if (prev == this->nil)
+				if (prev == this->_nil)
 					this->root = new_node;
 				else if (this->_compare(new_node->data, prev->data))
 					prev->left = new_node;
@@ -237,20 +301,10 @@ namespace ft {
 				this->_fix_insert(new_node);
 			}
 
-			void	_transplant(node_ptr to_cut, node_ptr to_connect) {
-				if (to_cut->parent == this->nil)
-					this->root = to_connect;
-				else if (to_cut == to_cut->parent->left)
-					to_cut->parent->left = to_connect;
-				else
-					to_cut->parent->right = to_connect;
-				to_connect->parent = to_cut->parent;
-			}
-
 			void erase(value_type val) {
 				node_ptr node;
 				node = this->search(val);
-				if (node != this->nil)
+				if (node != this->_nil)
 					this->erase(node);
 			}
 
@@ -258,10 +312,10 @@ namespace ft {
 				node_ptr tmp = node;
 				node_ptr x;
 				t_color tmp_color = tmp->color;
-				if (node->left == this->nil) {
+				if (node->left == this->_nil) {
 					x = node->right;
 					_transplant(node, node->right);
-				} else if (node->right == this->nil) {
+				} else if (node->right == this->_nil) {
 					x = node->left;
 					_transplant(node, node->left);
 				} else {
@@ -282,6 +336,106 @@ namespace ft {
 				this->delete_node(node);
 				if (tmp_color == BLACK)
 					this->_fix_erase(x);
+			}
+
+			// tree_rotations
+
+			// _right_rotate(y)                      //
+			//          y                x           //
+			//         / \              / \          //
+			//        x   c     =>     a   y         //
+			//       / \                  / \        //
+			//      a   b                b   c       //
+
+			void	_right_rotate(node_ptr node) {
+				node_ptr tmp = node->left;
+				node->left = tmp->right;
+				if (tmp->right != this->_nil)
+					tmp->right->parent = node;
+				tmp->parent = node->parent;
+				if (node->parent == this->_nil)
+					this->root = tmp;
+				else if (node == node->parent->right)
+					node->parent->right = tmp;
+				else
+					node->parent->left = tmp;
+				tmp->right = node;
+				node->parent = tmp;
+			}
+
+			// _left_rotate(x)                       //
+			//         x                 y           //
+			//        / \               / \          //
+			//       a   y      =>     x   c         //
+			//          / \           / \            //
+			//         b   c         a   b           //
+
+			void	_left_rotate(node_ptr node) {
+				node_ptr tmp = node->right;
+				node->right = tmp->left;
+				if (tmp->left != this->_nil)
+					tmp->left->parent = node;
+				tmp->parent = node->parent;
+				if (node->parent == this->_nil)
+					this->root = tmp;
+				else if (node == node->parent->left)
+					node->parent->left = tmp;
+				else
+					node->parent->right = tmp;
+				tmp->left = node;
+				node->parent = tmp;
+			}
+
+			// new_node
+
+			void	_fix_insert(node_ptr node) {
+				node_ptr uncle;
+				while (node->parent->color == RED) {
+					if (node->parent == node->parent->parent->left) {
+						uncle = node->parent->parent->right;
+						if (uncle->color == RED) {
+							node->parent->color = BLACK;
+							uncle->color = BLACK;
+							node->parent->parent->color = RED;
+							node = node->parent->parent;
+						} else {
+							if (node == node->parent->right) {
+								node = node->parent;
+								this->_left_rotate(node);
+							}
+							node->parent->color = BLACK;
+							node->parent->parent->color = RED;
+							this->_right_rotate(node->parent->parent);
+						}
+					} else {
+						uncle = node->parent->parent->left;
+						if (uncle->color == RED) {
+							node->parent->color = BLACK;
+							uncle->color = BLACK;
+							node->parent->parent->color = RED;
+							node = node->parent->parent;
+						} else {
+							if (node == node->parent->left) {
+								node = node->parent;
+								this->_right_rotate(node);
+							}
+							node->parent->color = BLACK;
+							node->parent->parent->color = RED;
+							this->_left_rotate(node->parent->parent);
+						}
+					}
+				}
+				this->root->color = BLACK;
+			}
+
+			void	_transplant(node_ptr to_cut, node_ptr to_connect) {
+				if (to_cut->parent == this->_nil)
+					this->root = to_connect;
+				else if (to_cut == to_cut->parent->left)
+					to_cut->parent->left = to_connect;
+				else
+					to_cut->parent->right = to_connect;
+				to_connect->parent = to_cut->parent;
 			}
 
 			void	_fix_erase(node_ptr x) {
@@ -340,153 +494,20 @@ namespace ft {
 				x->color = BLACK;
 			}
 
-			node_ptr	next(node_ptr node) {
-				if (node->right != this->nil)
-					return (this->_min(node->right));
-				node_ptr current = node->parent;
-				while (current != this->nil && node != current->right) {
-					node = current;
-					current = current->parent;
-				}
-				return (current);
-			}
-
-			node_ptr	search(value_type value) {
-				node_ptr current = this->root;
-				while (current != this->nil) {
-					if (this->_compare(value, current->data))
-						current = current->left;
-					else if (value > current->data)
-						current = current->right;
-					else
-						break ;
-				}
-				return (current);
-			}
-
-			node_ptr	max(void) {
-				return (this->_max(this->root));
-			}
-
-			node_ptr	_max(node_ptr current) {
-				while (current->right != this->nil)
-					current = current->right;
-				return (current);
-			}
-
-			node_ptr	min(void) {
-				return (this->_min(this->root));
-			}
-
-			node_ptr	_min(node_ptr current) {
-				while (current->left != this->nil)
-					current = current->left;
-				return (current);
-			}
-
-			void	_fix_insert(node_ptr node) {
-				node_ptr uncle;
-				while (node->parent->color == RED) {
-					if (node->parent == node->parent->parent->left) {
-						uncle = node->parent->parent->right;
-						if (uncle->color == RED) {
-							node->parent->color = BLACK;
-							uncle->color = BLACK;
-							node->parent->parent->color = RED;
-							node = node->parent->parent;
-						} else {
-							if (node == node->parent->right) {
-								node = node->parent;
-								this->_left_rotate(node);
-							}
-							node->parent->color = BLACK;
-							node->parent->parent->color = RED;
-							this->_right_rotate(node->parent->parent);
-						}
-					} else {
-						uncle = node->parent->parent->left;
-						if (uncle->color == RED) {
-							node->parent->color = BLACK;
-							uncle->color = BLACK;
-							node->parent->parent->color = RED;
-							node = node->parent->parent;
-						} else {
-							if (node == node->parent->left) {
-								node = node->parent;
-								this->_right_rotate(node);
-							}
-							node->parent->color = BLACK;
-							node->parent->parent->color = RED;
-							this->_left_rotate(node->parent->parent);
-						}
-					}
-				}
-				this->root->color = BLACK;
-			}
-
-			// tree_rotations
-
-			// _right_rotate(y)                      //
-			//          y                x           //
-			//         / \              / \          //
-			//        x   c     =>     a   y         //
-			//       / \                  / \        //
-			//      a   b                b   c       //
-
-			void	_right_rotate(node_ptr node) {
-				node_ptr tmp = node->left;
-				node->left = tmp->right;
-				if (tmp->right != this->nil)
-					tmp->right->parent = node;
-				tmp->parent = node->parent;
-				if (node->parent == this->nil)
-					this->root = tmp;
-				else if (node == node->parent->right)
-					node->parent->right = tmp;
-				else
-					node->parent->left = tmp;
-				tmp->right = node;
-				node->parent = tmp;
-			}
-
-			// _left_rotate(x)                       //
-			//         x                 y           //
-			//        / \               / \          //
-			//       a   y      =>     x   c         //
-			//          / \           / \            //
-			//         b   c         a   b           //
-
-			void	_left_rotate(node_ptr node) {
-				node_ptr tmp = node->right;
-				node->right = tmp->left;
-				if (tmp->left != this->nil)
-					tmp->left->parent = node;
-				tmp->parent = node->parent;
-				if (node->parent == this->nil)
-					this->root = tmp;
-				else if (node == node->parent->left)
-					node->parent->left = tmp;
-				else
-					node->parent->right = tmp;
-				tmp->left = node;
-				node->parent = tmp;
-			}
-
-			// new_node
-
 			node_ptr	_new_node(value_type val = value_type()) {
 				node_ptr new_node = this->_alloc.allocate(1);
 				this->_alloc.construct(new_node, node());
+				new_node->color = RED;
 				new_node->data = val;
-				new_node->right = this->nil;
-				new_node->left = this->nil;
+				new_node->parent = this->_nil;
+				new_node->right = this->_nil;
+				new_node->left = this->_nil;
 				return (new_node);
 			}
 
 			void	delete_node(node_ptr node) {
 				this->_alloc.destroy(node);
 				this->_alloc.deallocate(node, 1);
-				// (void)node;
 			}
 
 			// debug utils
@@ -499,14 +520,14 @@ namespace ft {
 
 			void	_print(rb_node<T> *node, std::stringstream &buffer,
 			bool is_tail, std::string prefix) {
-				if (node->right != this->nil)
+				if (node->right != this->_nil)
 					this->_print(node->right, buffer, false,
 						std::string(prefix).append(is_tail != 0 ? "│   " : "    "));
 				buffer << prefix << (is_tail != 0 ? "└── " : "┌── ");
 				if (node->color == RED)
 					buffer << "\033[31m";
 				buffer << node->data << "\033[0m" << std::endl;
-				if (node->left != this->nil)
+				if (node->left != this->_nil)
 					this->_print(node->left, buffer, true,
 							std::string(prefix).append(is_tail != 0 ? "    " : "│   "));
 			}

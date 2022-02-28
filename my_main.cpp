@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/27 01:42:54 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/02/28 23:20:50 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,20 +31,16 @@ int main(void) {
 	// ft::map<int, int> map;
 	// ft::rb_node<int> node;
 	ft::rb_tree<int> tree;
-	for (int i = 2; i < 12; i++)
+	for (int i = 2; i < 20; i++) {
 		tree.insert(i);
-	ft::rb_tree<int>::iterator it = tree.min();
-	ft::rb_tree<int>::iterator ite = tree.max();
-		int i = 0;
-	for (; it != ite; it++)
-	{
-		std::cout << *it << std::endl;
-		i++;
-		if (i == 15)
-			break ;
 	}
-	// it++;
-	std::cout << *it << std::endl;
+	tree.print();
+	ft::rb_tree<int>::iterator it = tree.begin();
+	ft::rb_tree<int>::iterator ite = tree.end();
+	for (; it != ite; ++it) {
+		std::cout << *it << std::endl;
+	}
+	// std::cout << *it << std::endl;
 	// tree.insert(2);
 	// tree.insert(1);
 	// tree.erase(1);
@@ -56,7 +52,6 @@ int main(void) {
 	// tree.insert(-67);
 	// tree.insert(54);
 	// std::cout << tree.root->data << std::endl;
-	// tree.print();
 	// tree.erase(13);
 	// tree.print();
 	// std::cout << std::endl;
