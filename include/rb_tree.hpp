@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/28 23:32:19 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/01 21:45:50 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <sstream>
 # include <iostream>
 # include <string>
+# include "iterator.hpp"
 
 namespace ft {
 
@@ -22,6 +23,10 @@ namespace ft {
 		RED = false,
 		BLACK = true
 	} t_color;
+
+////////////////////////////////////////////////////////////////////////////////
+// rb_node class
+////////////////////////////////////////////////////////////////////////////////
 
 	template <typename T>
 	struct rb_node {
@@ -55,19 +60,20 @@ namespace ft {
 		}
 	};
 
-	/*
-	** rb_treeIterator class
-	*/
+////////////////////////////////////////////////////////////////////////////////
+// rb_treeIterator class
+////////////////////////////////////////////////////////////////////////////////
 
 	template <typename T>
 	class rb_treeIterator {
 
-		typedef T value_type;
-		typedef T *pointer;
-		typedef T &reference;
-		typedef std::bidirectional_iterator_tag iterator_category;
-		typedef std::ptrdiff_t difference_type;
-		typedef rb_node<T> *node_ptr;
+		public:
+			typedef T value_type;
+			typedef T * pointer;
+			typedef T & reference;
+			typedef std::bidirectional_iterator_tag iterator_category;
+			typedef std::ptrdiff_t difference_type;
+			typedef rb_node<T> * node_ptr;
 
 		private:
 			node_ptr _current;
@@ -84,7 +90,7 @@ namespace ft {
 			}
 
 			rb_treeIterator(rb_treeIterator const &rbtit)
-			: _current(rbtit._current), _nil(rbtit._nil) {
+			: _current(rbtit._current), _root(rbtit._root), _nil(rbtit._nil) {
 			}
 
 			~rb_treeIterator(void) {
@@ -93,12 +99,13 @@ namespace ft {
 			rb_treeIterator	&operator=(rb_treeIterator const &rhs) {
 				if (this != &rhs) {
 					this->_current = rhs.current;
+					this->_root = rhs.root;
 					this->_nil = rhs.nil;
 				}
 				return (*this);
 			}
 
-			// Forward iterator requirements
+// forward iterator requirements
 
 			rb_treeIterator	&operator++(void) {
 				this->_current = this->_next(this->_current);
@@ -106,8 +113,8 @@ namespace ft {
 			}
 
 			rb_treeIterator	operator++(int) {
-				rb_treeIterator tmp(this->_current, this->_nil);
-				this->operator++();
+				rb_treeIterator tmp(this->_current, this->_root, this->_nil);
+				this->_current = this->_next(this->_current);
 				return (tmp);
 			}
 
@@ -115,7 +122,7 @@ namespace ft {
 				return (this->_current->data);
 			}
 
-			reference operator*(void) {
+			reference	operator*(void) {
 				return (this->_current->data);
 			}
 
@@ -124,24 +131,30 @@ namespace ft {
 			}
 
 			bool	operator!=(rb_treeIterator const &rhs) {
-				return (!(*this == rhs));
+				return (this->_current != rhs._current);
 			}
 
-			// Bidirectional iterator requirements
-
+// bidirectional iterator requirements
 
 			rb_treeIterator	&operator--(void) {
-				this->_current = this->_prev(this->_current);
-					return (*this);
+				if (this->_current == this->_nil)
+					this->_current = this->_max(this->_root);
+				else
+					this->_current = this->_prev(this->_current);
+				return (*this);
 			}
 
 			rb_treeIterator	operator--(int) {
-				rb_treeIterator tmp(this->_current, this->_nil);
-				this->operator--();
+				rb_treeIterator tmp(this->_current, this->_root, this->_nil);
+				if (this->_current == this->_nil)
+					this->_current = this->_max(this->_root);
+				else
+					this->_current = this->_prev(this->_current);
 				return (tmp);
 			}
 
-		// utils
+// utils
+
 		private:
 			node_ptr	_max(node_ptr node) {
 				while (node->right != this->_nil)
@@ -179,16 +192,11 @@ namespace ft {
 
 	};
 
-	// template <typename It1, typename It2>
-	// bool	operator==(rbtree_Iterator<It1> const &lhs, rbtree_Iterator<It2> const &rhs) {
-		// return ();
-	// }
+////////////////////////////////////////////////////////////////////////////////
+// red-black tree structure
+////////////////////////////////////////////////////////////////////////////////
 
-	/*
-	** red-black tree structure
-	*/
-
-	template <typename T, typename Compare = std::less<T>, typename Allocator = std::allocator<rb_node<T> > >
+	template <typename T, typename Allocator = std::allocator<rb_node<T> >, typename Compare = std::less<T> >
 	class rb_tree {
 
 		public:
@@ -198,7 +206,9 @@ namespace ft {
 			typedef T value_type;
 			typedef Compare compare_type;
 			typedef rb_treeIterator<T> iterator;
-			typedef rb_treeIterator<T> const const_iterator;
+			typedef rb_treeIterator<T const> const_iterator;
+			typedef ft::reverse_iterator<iterator> reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 		private:
 			node_ptr root;
@@ -215,15 +225,15 @@ namespace ft {
 			}
 
 			~rb_tree(void) {
-				clean(this->root);
+				this->_clean(this->root);
 				delete_node(this->_nil);
 			}
 
-			void	clean(node_ptr node) {
+			void	_clean(node_ptr node) {
 				if (node == this->_nil)
 					return ;
-				clean(node->left);
-				clean(node->right);
+				this->_clean(node->left);
+				this->_clean(node->right);
 				delete_node(node);
 			}
 
@@ -231,28 +241,40 @@ namespace ft {
 				return (iterator(this->min(), this->root, this->_nil));
 			}
 
+			const_iterator	begin(void) const {
+				return (iterator(this->min(), this->root, this->_nil));
+			}
+
 			iterator	end(void) {
-				// iterator tmp(this->_nil, this->_nil);
 				return (iterator(this->_nil, this->root, this->_nil));
 			}
 
-			// node_ptr	next(node_ptr node) {
-				// if (node->right != this->_nil)
-					// return (this->_min(node->right));
-				// node_ptr current = node->parent;
-				// while (current != this->_nil && node != current->right) {
-					// node = current;
-					// current = current->parent;
-				// }
-				// return (current);
-			// }
+			const_iterator	end(void) const {
+				return (iterator(this->_nil, this->root, this->_nil));
+			}
+
+			reverse_iterator	rbegin(void) {
+				return (reverse_iterator(this->end()));
+			}
+
+			const_reverse_iterator	rbegin(void) const {
+				return (const_reverse_iterator(this->end()));
+			}
+
+			reverse_iterator	rend(void) {
+				return (reverse_iterator(this->begin()));
+			}
+
+			const_reverse_iterator	rend(void) const {
+				return (const_reverse_iterator(this->begin()));
+			}
 
 			node_ptr	search(value_type value) {
 				node_ptr current = this->root;
 				while (current != this->_nil) {
 					if (this->_compare(value, current->data))
 						current = current->left;
-					else if (value > current->data)
+					else if (this->_compare(current->data, this->value))
 						current = current->right;
 					else
 						break ;
@@ -338,7 +360,7 @@ namespace ft {
 					this->_fix_erase(x);
 			}
 
-			// tree_rotations
+// tree_rotations
 
 			// _right_rotate(y)                      //
 			//          y                x           //
@@ -518,6 +540,7 @@ namespace ft {
 				std::cout << buffer.str();
 			}
 
+		private:
 			void	_print(rb_node<T> *node, std::stringstream &buffer,
 			bool is_tail, std::string prefix) {
 				if (node->right != this->_nil)

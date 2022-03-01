@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/25 22:00:27 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/23 21:12:21 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/01 21:28:46 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@
 
 namespace ft {
 
-	/*
-	** VectorIterator class
-	*/
+////////////////////////////////////////////////////////////////////////////////
+// VectorIterator class
+////////////////////////////////////////////////////////////////////////////////
 
 	template <typename T>
 	class VectorIterator {
@@ -55,7 +55,7 @@ namespace ft {
 				return (*this);
 			}
 
-			// Forward iterator requirements
+// Forward iterator requirements
 
 			VectorIterator	&operator++(void) {
 				++this->_current;
@@ -76,7 +76,7 @@ namespace ft {
 				return (*this->_current);
 			}
 
-			// Bidirectional iterator requirements
+// Bidirectional iterator requirements
 
 			VectorIterator	&operator--(void) {
 				--this->_current;
@@ -88,7 +88,7 @@ namespace ft {
 				return (tmp);
 			}
 
-			// Random access iterator requirements
+// Random access iterator requirements
 
 			difference_type	operator+(VectorIterator<T> const &iter) const {
 				return (this->_current + iter._current);
@@ -130,7 +130,7 @@ namespace ft {
 
 	};
 
-	// Forward iterator requirements
+// Forward iterator requirements
 
 	template <typename T, typename U>
 	bool	operator==(VectorIterator<T> const &lhs,
@@ -144,7 +144,7 @@ namespace ft {
 		return (lhs.base() != rhs.base());
 	}
 
-	// Random access Iterator
+// Random access iterator requirements
 
 	template <typename T, typename U>
 	bool	operator<=(VectorIterator<T> const &lhs,
@@ -170,7 +170,7 @@ namespace ft {
 		return (lhs.base() > rhs.base());
 	}
 
-	// Operators '-' and '+' must also work with different types
+// Operators '-' and '+' must also work with different types
 
 	template <typename T>
 	VectorIterator<T>	operator+(
@@ -186,17 +186,13 @@ namespace ft {
 		return (VectorIterator<T>(iter.base() - n));
 	}
 
-	/*
-	** vector container
-	*/
+////////////////////////////////////////////////////////////////////////////////
+// vector container
+////////////////////////////////////////////////////////////////////////////////
 
 	template <typename T, typename Allocator = std::allocator<T> >
 	class vector {
-
 		public:
-
-// types:
-
 			typedef T value_type;
 			typedef typename Allocator::pointer pointer;
 			typedef typename Allocator::const_pointer const_pointer;
@@ -204,8 +200,8 @@ namespace ft {
 			typedef typename Allocator::const_reference const_reference;
 			typedef VectorIterator<T> iterator;
 			typedef VectorIterator<T const> const_iterator;
-			// Since pointers are perfectly valid random access iterator, they
-			// can be used as normal iterators
+// Since pointers are perfectly valid random access iterator, they
+// can be used as normal iterators instead of VectorIterator
 			// typedef T * iterator;
 			// typedef T const * const_iterator;
 			typedef size_t size_type;
@@ -214,17 +210,17 @@ namespace ft {
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-			// ctors / allocators / copy-ctors / dtor
+// constructors / destructor / assignations / allocations
 
 			explicit vector(
-			allocator_type const &alloc = allocator_type()) :
-			_start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
+			allocator_type const &alloc = allocator_type())
+			: _start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
 			}
 
 			explicit vector(
 			size_type n, T const &val = value_type(),
-			allocator_type const &alloc = allocator_type()):
-			_start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
+			allocator_type const &alloc = allocator_type())
+			: _start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
 				this->assign(n, val);
 			}
 
@@ -232,13 +228,13 @@ namespace ft {
 			vector(
 			InputIterator first, InputIterator last,
 			allocator_type const &alloc = allocator_type(),
-			typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type * = NULL):
-			_start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
+			typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type * = NULL)
+			: _start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(alloc) {
 				this->assign(first, last);
 			}
 
-			vector(vector<T, Allocator> const &vct):
-			_start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(vct._alloc) {
+			vector(vector<T, Allocator> const &vct)
+			: _start(NULL), _finish(NULL), _end_of_storage(NULL), _alloc(vct._alloc) {
 				this->assign(vct._start, vct._finish);
 			}
 
@@ -268,7 +264,7 @@ namespace ft {
 				return (this->_alloc);
 			}
 
-			// iterators
+// iterators
 
 			iterator	begin(void) {
 				return (iterator(this->_start));
@@ -302,7 +298,7 @@ namespace ft {
 				return (const_reverse_iterator(this->_start));
 			}
 
-			// capacity
+// capacity
 
 			size_type size(void) const {
 				return (std::distance(this->_start, this->_finish));
@@ -356,7 +352,7 @@ namespace ft {
 				}
 			}
 
-			// element access
+// element access
 
 			reference	operator[](size_type n) {
 				return (this->_start[n]);
@@ -394,7 +390,7 @@ namespace ft {
 				return (*(this->_finish - 1));
 			}
 
-			// modifiers:
+// modifiers
 
 			void push_back(T const &val) {
 				this->insert(this->_finish, val);
@@ -485,7 +481,7 @@ namespace ft {
 			iterator _end_of_storage;
 			allocator_type _alloc;
 
-			// utils
+// utils
 
 			void	_vector_shift_right(iterator position, difference_type offset) {
 				if (this->empty() == false) {
@@ -543,7 +539,7 @@ namespace ft {
 		return (lhs > rhs || lhs == rhs);
 	}
 
-	// specialized algorithms:
+// specialized algorithms
 
 	template <typename T, typename Allocator>
 	void swap(vector<T, Allocator> &lhs, vector<T,Allocator> &rhs) {

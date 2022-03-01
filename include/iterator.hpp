@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 21:16:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/20 14:12:47 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/01 21:46:43 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ namespace ft {
 		typedef std::random_access_iterator_tag iterator_category;
 	};
 
-	// NormalIterators can be used for vectors
 	// reverse_iterator class
 
 	template <typename Iterator>
@@ -71,24 +70,19 @@ namespace ft {
 			reverse_iterator(reverse_iterator<Iter> const &rit): _current(rit.base()) {
 			}
 
-			// template <typename Iter>
-			// reverse_iterator	&operator=(reverse_iterator<Iter> const &rit) {
-				// if (this != &rit)
-					// this->_current = rit.base();
-				// return (*this);
-			// }
-
 			Iterator	base(void) const {
 				return (this->_current);
 			}
 
 			reference	operator*(void) const {
-				iterator_type tmp = this->_current - 1;
+				iterator_type tmp = this->_current;
+				--tmp;
 				return (*tmp);
 			}
 
 			pointer	operator->(void) const {
-				iterator_type tmp = this->_current - 1;
+				iterator_type tmp = this->_current;
+				--tmp;
 				return (&*tmp);
 			}
 
