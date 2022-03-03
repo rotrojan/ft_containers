@@ -6,12 +6,13 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 18:05:33 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/01 22:09:35 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/02 18:33:58 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PAIR_HPP
 # define PAIR_HPP
+# include <ostream>
 
 namespace ft {
 
@@ -31,11 +32,12 @@ namespace ft {
 		}
 
 		template <typename First, typename Second>
-		pair(pair<First, Second> const &p): first(p.first), second(p.second) {
+		pair(pair<First, Second> const &p)
+		: first(p.first), second(p.second) {
 		}
 
-		pair(first_type const &first, second_type const &second):
-		first(first), second(second) {
+		pair(first_type const &first, second_type const &second)
+		: first(first), second(second) {
 		}
 
 		pair	&operator=(pair const &rhs) {
@@ -80,7 +82,7 @@ namespace ft {
 // debug
 	template <typename T, typename U>
 	std::ostream	&operator<<(std::ostream &ostream, pair<T, U> const &rhs) {
-		ostream << "first: " << rhs->first << ", second: " << rhs->second;
+		ostream << "first: " << rhs.first << ", second: " << rhs.second;
 		return (ostream);
 	}
 

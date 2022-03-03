@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/01 22:10:40 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/03 11:01:40 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ namespace ft {
 		typedef Compare key_compare;
 		typedef Allocator allocator_type;
 		typedef rb_treeIterator<value_type> iterator;
+		typedef typename Allocator::template rebind<rb_node<value_type> >::other node_allocator_type;
 		// typedef rb_treeIterator<value_type> > const_iterator;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::const_pointer const_pointer;
@@ -58,10 +59,10 @@ namespace ft {
 		};
 
 	private:
-		rb_tree<value_type> _tree;
 		allocator_type _alloc;
 		key_compare _key_comp;
 		value_compare _value_comp;
+		rb_tree<value_type, node_allocator_type, value_compare> _tree;
 
 	public:
 		explicit map(Compare const &comp = Compare(), allocator_type const alloc = allocator_type())
@@ -73,7 +74,7 @@ namespace ft {
 
 		// }
 
-		map(map<Key, T, Compare, Allocator> const &x);
+		// map(map<Key, T, Compare, Allocator> const &x);
 
 		~map() {
 		}

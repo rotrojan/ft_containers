@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/01 22:10:00 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/02 21:50:48 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ int main(void) {
 		// std::cout << *it << std::endl;
 	// }
 	ft::map<int, int> map;
-	map.insert(ft::make_pair(1, 2));
+	ft::pair<int, int> p = ft::make_pair<int, int>(1, 42);
+	(void)p;
+	// std::cout << p << std::endl;
+	// map.insert(p);
 	return (0);
 }
