@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/03 18:44:25 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/03 23:15:03 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ namespace ft {
 		typedef pair<Key const, T> value_type;
 		typedef Compare key_compare;
 		typedef Allocator allocator_type;
-		typedef rb_treeIterator<value_type> iterator;
-		typedef rb_treeIterator<value_type> const_iterator;
+		typedef rb_treeIterator<value_type, rb_node<value_type> > iterator;
+		typedef rb_treeIterator<value_type const, rb_node<value_type> > const_iterator;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::const_pointer const_pointer;
 		typedef typename Allocator::reference reference;
@@ -73,10 +73,14 @@ namespace ft {
 		key_compare const &comp = key_compare(), allocator_type const alloc = allocator_type())
 		: _alloc(alloc), _key_comp(comp), _value_comp(comp), _tree(_alloc, _value_comp) {
 			for (; first != last; ++first)
-				this->insert(first);
+				this->insert(*first);
 		}
 
-		map(map<Key, T, Compare, Allocator> const &m);
+		map(map<key_type, value_type, key_compare, allocator_type> const &m)
+		: _alloc(m.alloc), _key_comp(m.comp), _value_comp(m.comp), _tree(_alloc, _value_comp) {
+			for (typename ft::map<key_type, value_type>::iterator it = m.begin(), ite = m.end; it != ite; ++it)
+				this->insert(*it);
+		}
 
 		~map() {
 		}
@@ -86,7 +90,8 @@ namespace ft {
 			this->_tree.print();
 		}
 
-		map<Key, T, Compare, Allocator>	&operator=(map<Key, T, Compare, Allocator> const &rhs) {
+		map<key_type, value_type, key_compare, allocator_type>
+		&operator=(map<key_type, value_type, key_compare, allocator_type> const &rhs) {
 			if (this != &rhs) {
 				this->_tree = rhs._tree;
 				this->_alloc = rhs._alloc;
@@ -98,15 +103,7 @@ namespace ft {
 
 		// void	swap(map<Key, T, Compare, Allocator> &x);
 
-// accessors
-
-		key_compare	key_comp(void) const {
-			return (this->_key_comp);
-		}
-
-		value_compare	value_comp(void) const {
-			return (this->_value_comp);
-		}
+// iterators
 
 		iterator	begin(void) {
 			return (this->_tree.begin());
@@ -140,17 +137,25 @@ namespace ft {
 			return (this->_tree.rend());
 		}
 
-		// bool	empty() const;
+// capacity
 
-		// size_type	size() const;
+		bool	empty(void) const {
+			return (this->size() == 0);
+		}
+
+		size_type	size(void) const {
+			return (this->_tree.size());
+		}
 
 		size_type	max_size(void) const {
 			return (this->_alloc.max_size());
 		}
 
+// element access
+
 		// reference	operator[](key_type const &key);
 
-		// insert/erase:
+// modifiers
 
 		ft::pair<iterator, bool>	insert(value_type const &p) {
 			return (this->_tree.insert(p));
@@ -167,13 +172,29 @@ namespace ft {
 
 		//void	erase(iterator first, iterator last);
 
-		// map operations:
+		// void swap(map<Key,T,Compare,Allocator>&);
+
+		void	clear(void) {
+			this->_tree.clear();
+		}
+
+// observers
+
+		key_compare	key_comp(void) const {
+			return (this->_key_comp);
+		}
+
+		value_compare	value_comp(void) const {
+			return (this->_value_comp);
+		}
+
+// map operations
 
 		//iterator	find(key_type const &key);
 
 		//const_iterator	find(key_type const &key) const;
 
-		size_type	count(key_type const &key) const;
+		// size_type	count(key_type const &key) const;
 
 		//iterator	lower_bound(key_type const &key);
 

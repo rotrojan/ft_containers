@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/03 18:50:32 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/03 23:48:39 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,16 +66,18 @@ namespace ft {
 // rb_treeIterator class
 ////////////////////////////////////////////////////////////////////////////////
 
-	template <typename T>
+	template <typename T, typename Node>
 	class rb_treeIterator {
 
 		public:
 			typedef T value_type;
 			typedef T * pointer;
+			typedef T const * const_pointer;
 			typedef T & reference;
+			typedef T const & const_reference;
 			typedef std::bidirectional_iterator_tag iterator_category;
 			typedef std::ptrdiff_t difference_type;
-			typedef rb_node<T> * node_ptr;
+			typedef Node * node_ptr;
 
 		private:
 			node_ptr _current;
@@ -100,11 +102,15 @@ namespace ft {
 
 			rb_treeIterator	&operator=(rb_treeIterator const &rhs) {
 				if (this != &rhs) {
-					this->_current = rhs.current;
-					this->_root = rhs.root;
-					this->_nil = rhs.nil;
+					this->_current = rhs._current;
+					this->_root = rhs._root;
+					this->_nil = rhs._nil;
 				}
 				return (*this);
+			}
+
+			operator	rb_treeIterator<value_type const, Node >(void) const {
+				return (rb_treeIterator<value_type const, Node>(this->_current, this->_root, this->_nil));
 			}
 
 // forward iterator requirements
@@ -121,10 +127,18 @@ namespace ft {
 			}
 
 			pointer	operator->(void) {
-				return (this->_current->data);
+				return (&this->operator*());
+			}
+
+			const_pointer	operator->(void) const {
+				return (&this->operator*());
 			}
 
 			reference	operator*(void) {
+				return (this->_current->data);
+			}
+
+			const_reference	operator*(void) const {
 				return (this->_current->data);
 			}
 
@@ -159,14 +173,16 @@ namespace ft {
 
 		private:
 			node_ptr	_max(node_ptr node) {
-				while (node->right != this->_nil)
-					node = node->right;
+				// if (node != this->_nil)
+					while (node->right != this->_nil)
+						node = node->right;
 				return (node);
 			}
 
 			node_ptr	_min(node_ptr node) {
-				while (node->left != this->_nil)
-					node = node->left;
+				// if (node != this->_nil)
+					while (node->left != this->_nil)
+						node = node->left;
 				return (node);
 			}
 
@@ -207,20 +223,22 @@ namespace ft {
 			typedef T value_type;
 			typedef typename Allocator::template rebind<rb_node<value_type> >::other allocator_type;
 			typedef Compare compare_type;
-			typedef rb_treeIterator<T> iterator;
-			typedef rb_treeIterator<T const> const_iterator;
+			typedef rb_treeIterator<T, rb_node<T> > iterator;
+			typedef rb_treeIterator<T const, rb_node<T> > const_iterator;
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+			typedef std::size_t size_type;
 
 		private:
 			node_ptr _root;
 			node_ptr _nil;
 			allocator_type _alloc;
 			compare_type _compare;
+			size_type _size;
 
 		public:
 			rb_tree(allocator_type const &alloc, compare_type const &compare)
-			: _alloc(alloc), _compare(compare) {
+			: _alloc(alloc), _compare(compare), _size(size_type()) {
 				this->_nil = this->_alloc.allocate(1);
 				this->_alloc.construct(this->_nil, node(
 					value_type(), BLACK, this->_nil, this->_nil, this->_nil));
@@ -232,11 +250,15 @@ namespace ft {
 				delete_node(this->_nil);
 			}
 
+			void	clear(void) {
+				clear(this->_root);
+			}
+
 			void	clear(node_ptr node) {
 				if (node == this->_nil)
 					return ;
-				this->_clean(node->left);
-				this->_clean(node->right);
+				this->clear(node->left);
+				this->clear(node->right);
 				delete_node(node);
 			}
 
@@ -245,7 +267,7 @@ namespace ft {
 			}
 
 			const_iterator	begin(void) const {
-				return (iterator(this->min(), this->_root, this->_nil));
+				return (const_iterator(this->min(), this->_root, this->_nil));
 			}
 
 			iterator	end(void) {
@@ -253,7 +275,7 @@ namespace ft {
 			}
 
 			const_iterator	end(void) const {
-				return (iterator(this->_nil, this->_root, this->_nil));
+				return (const_iterator(this->_nil, this->_root, this->_nil));
 			}
 
 			reverse_iterator	rbegin(void) {
@@ -272,6 +294,10 @@ namespace ft {
 				return (const_reverse_iterator(this->begin()));
 			}
 
+			size_type	size(void) const {
+				return (this->_size);
+			}
+
 			node_ptr	search(value_type value) {
 				node_ptr current = this->_root;
 				while (current != this->_nil) {
@@ -285,21 +311,21 @@ namespace ft {
 				return (current);
 			}
 
-			node_ptr	max(void) {
+			node_ptr	max(void) const {
 				return (this->_max(this->_root));
 			}
 
-			node_ptr	_max(node_ptr current) {
+			node_ptr	_max(node_ptr current) const {
 				while (current->right != this->_nil)
 					current = current->right;
 				return (current);
 			}
 
-			node_ptr	min(void) {
+			node_ptr	min(void) const {
 				return (this->_min(this->_root));
 			}
 
-			node_ptr	_min(node_ptr current) {
+			node_ptr	_min(node_ptr current) const {
 				while (current->left != this->_nil)
 					current = current->left;
 				return (current);
@@ -326,6 +352,7 @@ namespace ft {
 				else
 					prev->right = new_node;
 				this->_fix_insert(new_node);
+				++this->_size;
 				return (ft::make_pair(iterator(new_node, this->_root, this->_nil), true));
 			}
 
@@ -364,6 +391,7 @@ namespace ft {
 				this->delete_node(node);
 				if (tmp_color == BLACK)
 					this->_fix_erase(x);
+				--this->_size;
 			}
 
 // tree_rotations
@@ -530,8 +558,8 @@ namespace ft {
 			}
 
 			void	delete_node(node_ptr node) {
-				this->_alloc.destroy(node);
-				this->_alloc.deallocate(node, 1);
+					this->_alloc.destroy(node);
+					this->_alloc.deallocate(node, 1);
 			}
 
 			// debug utils
