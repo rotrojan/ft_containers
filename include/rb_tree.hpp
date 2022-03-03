@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/02 21:42:52 by bigo             ###   ########.fr       */
+/*   Updated: 2022/03/03 18:50:32 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <iostream>
 # include <string>
 # include "iterator.hpp"
+# include "pair.hpp"
 
 namespace ft {
 
@@ -31,19 +32,19 @@ namespace ft {
 	template <typename T>
 	struct rb_node {
 
+		T data;
 		enum e_color color;
 		rb_node *parent;
 		rb_node *left;
 		rb_node *right;
-		T data;
 
-		rb_node(t_color color = RED, rb_node *parent = NULL,
+		rb_node(T data, t_color color = RED, rb_node *parent = NULL,
 		rb_node *left = NULL, rb_node *right = NULL)
-		: color(color), parent(parent), left(left), right(right) {
+		: data(data), color(color), parent(parent), left(left), right(right) {
 		}
 
-		rb_node(rb_node const &node) {
-			*this = node;
+		rb_node(rb_node const &node)
+		: data(node.data), color(node.color), parent(node.parent), left(node.left), right(node.right) {
 		}
 
 		~rb_node(void) {
@@ -51,6 +52,7 @@ namespace ft {
 
 		rb_node	&operator=(rb_node const &rhs) {
 			if (this != &rhs) {
+				this->data = rhs.data;
 				this->color = rhs.color;
 				this->parent = rhs.parent;
 				this->left = rhs.left;
@@ -196,14 +198,14 @@ namespace ft {
 // red-black tree structure
 ////////////////////////////////////////////////////////////////////////////////
 
-	template <typename T, typename Allocator = std::allocator<rb_node<T> >, typename Compare = std::less<T> >
+	template <typename T, typename Allocator, typename Compare = std::less<T> >
 	class rb_tree {
 
 		public:
 			typedef rb_node<T> node;
 			typedef rb_node<T> *node_ptr;
-			typedef Allocator allocator_type;
 			typedef T value_type;
+			typedef typename Allocator::template rebind<rb_node<value_type> >::other allocator_type;
 			typedef Compare compare_type;
 			typedef rb_treeIterator<T> iterator;
 			typedef rb_treeIterator<T const> const_iterator;
@@ -211,25 +213,26 @@ namespace ft {
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 		private:
-			node_ptr root;
+			node_ptr _root;
 			node_ptr _nil;
 			allocator_type _alloc;
 			compare_type _compare;
 
 		public:
-			rb_tree(allocator_type const &alloc = allocator_type(), compare_type const &compare = compare_type())
+			rb_tree(allocator_type const &alloc, compare_type const &compare)
 			: _alloc(alloc), _compare(compare) {
 				this->_nil = this->_alloc.allocate(1);
-				this->_alloc.construct(this->_nil, node(BLACK, this->_nil, this->_nil, this->_nil));
-				this->root = this->_nil;
+				this->_alloc.construct(this->_nil, node(
+					value_type(), BLACK, this->_nil, this->_nil, this->_nil));
+				this->_root = this->_nil;
 			}
 
 			~rb_tree(void) {
-				this->_clean(this->root);
+				this->clear(this->_root);
 				delete_node(this->_nil);
 			}
 
-			void	_clean(node_ptr node) {
+			void	clear(node_ptr node) {
 				if (node == this->_nil)
 					return ;
 				this->_clean(node->left);
@@ -238,19 +241,19 @@ namespace ft {
 			}
 
 			iterator	begin(void) {
-				return (iterator(this->min(), this->root, this->_nil));
+				return (iterator(this->min(), this->_root, this->_nil));
 			}
 
 			const_iterator	begin(void) const {
-				return (iterator(this->min(), this->root, this->_nil));
+				return (iterator(this->min(), this->_root, this->_nil));
 			}
 
 			iterator	end(void) {
-				return (iterator(this->_nil, this->root, this->_nil));
+				return (iterator(this->_nil, this->_root, this->_nil));
 			}
 
 			const_iterator	end(void) const {
-				return (iterator(this->_nil, this->root, this->_nil));
+				return (iterator(this->_nil, this->_root, this->_nil));
 			}
 
 			reverse_iterator	rbegin(void) {
@@ -270,7 +273,7 @@ namespace ft {
 			}
 
 			node_ptr	search(value_type value) {
-				node_ptr current = this->root;
+				node_ptr current = this->_root;
 				while (current != this->_nil) {
 					if (this->_compare(value, current->data))
 						current = current->left;
@@ -283,7 +286,7 @@ namespace ft {
 			}
 
 			node_ptr	max(void) {
-				return (this->_max(this->root));
+				return (this->_max(this->_root));
 			}
 
 			node_ptr	_max(node_ptr current) {
@@ -293,7 +296,7 @@ namespace ft {
 			}
 
 			node_ptr	min(void) {
-				return (this->_min(this->root));
+				return (this->_min(this->_root));
 			}
 
 			node_ptr	_min(node_ptr current) {
@@ -302,25 +305,28 @@ namespace ft {
 				return (current);
 			}
 
-			void	insert(value_type val) {
+			ft::pair<iterator, bool>	insert(value_type val) {
 				node_ptr new_node = this->_new_node(val);
 				node_ptr prev = this->_nil;
-				node_ptr current = this->root;
+				node_ptr current = this->_root;
 				while (current != this->_nil) {
 					prev = current;
 					if (this->_compare(new_node->data, current->data))
 						current = current->left;
-					else
+					else if (this->_compare(current->data ,new_node->data))
 						current = current->right;
+					else
+						return (ft::make_pair(iterator(current, this->_root, this->_nil), false));
 				}
 				new_node->parent = prev;
 				if (prev == this->_nil)
-					this->root = new_node;
+					this->_root = new_node;
 				else if (this->_compare(new_node->data, prev->data))
 					prev->left = new_node;
 				else
 					prev->right = new_node;
 				this->_fix_insert(new_node);
+				return (ft::make_pair(iterator(new_node, this->_root, this->_nil), true));
 			}
 
 			void erase(value_type val) {
@@ -376,7 +382,7 @@ namespace ft {
 					tmp->right->parent = node;
 				tmp->parent = node->parent;
 				if (node->parent == this->_nil)
-					this->root = tmp;
+					this->_root = tmp;
 				else if (node == node->parent->right)
 					node->parent->right = tmp;
 				else
@@ -399,7 +405,7 @@ namespace ft {
 					tmp->left->parent = node;
 				tmp->parent = node->parent;
 				if (node->parent == this->_nil)
-					this->root = tmp;
+					this->_root = tmp;
 				else if (node == node->parent->left)
 					node->parent->left = tmp;
 				else
@@ -447,12 +453,12 @@ namespace ft {
 						}
 					}
 				}
-				this->root->color = BLACK;
+				this->_root->color = BLACK;
 			}
 
 			void	_transplant(node_ptr to_cut, node_ptr to_connect) {
 				if (to_cut->parent == this->_nil)
-					this->root = to_connect;
+					this->_root = to_connect;
 				else if (to_cut == to_cut->parent->left)
 					to_cut->parent->left = to_connect;
 				else
@@ -462,7 +468,7 @@ namespace ft {
 
 			void	_fix_erase(node_ptr x) {
 				node_ptr w;
-				while (x != this->root && x->color == BLACK) {
+				while (x != this->_root && x->color == BLACK) {
 					if (x == x->parent->left) {
 						w = x->parent->right;
 						if (w->color == RED) {
@@ -485,7 +491,7 @@ namespace ft {
 							x->parent->color = BLACK;
 							w->right->color = BLACK;
 							this->_left_rotate(x->parent);
-							x = this->root;
+							x = this->_root;
 						}
 					} else {
 						w = x->parent->left;
@@ -509,7 +515,7 @@ namespace ft {
 							x->parent->color = BLACK;
 							w->left->color = BLACK;
 							this->_right_rotate(x->parent);
-							x = this->root;
+							x = this->_root;
 						}
 					}
 				}
@@ -518,12 +524,8 @@ namespace ft {
 
 			node_ptr	_new_node(value_type val = value_type()) {
 				node_ptr new_node = this->_alloc.allocate(1);
-				this->_alloc.construct(new_node, node());
-				new_node->color = RED;
-				new_node->data = val;
-				new_node->parent = this->_nil;
-				new_node->right = this->_nil;
-				new_node->left = this->_nil;
+				this->_alloc.construct(new_node, node(
+					val, RED, this->_nil, this->_nil, this->_nil));
 				return (new_node);
 			}
 
@@ -536,7 +538,7 @@ namespace ft {
 
 			void	print(void) {
 				std::stringstream buffer;
-				this->_print(this->root, buffer, true, "");
+				this->_print(this->_root, buffer, true, "");
 				std::cout << buffer.str();
 			}
 

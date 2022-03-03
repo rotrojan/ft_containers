@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 18:05:33 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/02 18:33:58 by bigo             ###   ########.fr       */
+/*   Updated: 2022/03/03 17:15:49 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,10 @@ namespace ft {
 				this->second = rhs.second;
 			}
 			return (*this);
+		}
+
+		operator pair<T const, U const>(void) const {
+			return (pair<T const, U const>(this->first, this->second));
 		}
 	};
 
