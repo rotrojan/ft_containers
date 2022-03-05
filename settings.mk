@@ -6,11 +6,11 @@
 #    By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 21:06:11 by rotrojan          #+#    #+#              #
-#    Updated: 2022/03/04 21:34:08 by rotrojan         ###   ########.fr        #
+#    Updated: 2022/03/05 21:51:42 by rotrojan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-MAIN = marc_main.cpp
+MAIN = main.cpp
 
 # The name of the binary
 NAME = ft_containers_test

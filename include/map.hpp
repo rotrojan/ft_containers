@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/05 02:52:46 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/05 21:45:20 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MAP_HPP
 # include "rb_tree.hpp"
 # include "pair.hpp"
+# include "algorithm.hpp"
 
 namespace ft {
 
@@ -26,7 +27,6 @@ namespace ft {
 	class map {
 
 		public:
-// typedefs
 			typedef Key key_type;
 			typedef T mapped_type;
 			typedef pair<Key const, T> value_type;
@@ -42,7 +42,6 @@ namespace ft {
 			typedef std::ptrdiff_t difference_type;
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
-
 
 			class value_compare: public std::binary_function<value_type, value_type, bool> {
 				private:
@@ -96,7 +95,6 @@ namespace ft {
 				return (*this);
 			}
 
-			// void	swap(map<Key, T, Compare, Allocator> &x);
 
 // iterators
 
@@ -148,9 +146,12 @@ namespace ft {
 
 // element access
 
-			// reference	operator[](key_type const &key) {
-
-			// }
+			mapped_type	&operator[](key_type const &key) {
+				iterator it = this->find(key);
+				if (it == this->end())
+					it = this->insert(ft::make_pair(key, mapped_type())).first;
+				return (it->second);
+			}
 
 // modifiers
 
@@ -159,6 +160,7 @@ namespace ft {
 			}
 
 			iterator	insert(iterator position, value_type const &p) {
+				// (void)position;
 				return (this->_tree.insert(p, position).first);
 			}
 
@@ -168,13 +170,28 @@ namespace ft {
 					this->_tree.insert(*first, this->end());
 			}
 
-			//void	erase(iterator position);
+			void	erase(iterator position) {
+				this->_tree.erase(position);
+			}
 
-			size_type	erase(key_type const &key);
+			size_type	erase(key_type const &key) {
+				size_type ret = this->count(key);
+				this->_tree.erase(ft::make_pair(key, mapped_type()));
+				return (ret);
+			}
 
-			//void	erase(iterator first, iterator last);
+			void	erase(iterator first, iterator last) {
+				iterator it;
+				while (first != last) {
+					it = first;
+					++first;
+					this->_tree.erase(it);
+				}
+			}
 
-			// void swap(map<Key,T,Compare,Allocator>&);
+			void swap(map<Key, T, Compare, Allocator> &m) {
+				this->_tree.swap(m._tree);
+			}
 
 			void	clear(void) {
 				this->_tree.clear();
@@ -200,19 +217,37 @@ namespace ft {
 				return (this->_tree.find(ft::make_pair(key, mapped_type())));
 			}
 
-			// size_type	count(key_type const &key) const;
+			size_type	count(key_type const &key) const {
+				return (this->find(key) != this->end());
+			}
 
-			//iterator	lower_bound(key_type const &key);
+			iterator	lower_bound(key_type const &key) {
+				return (this->_tree.lower_bound(ft::make_pair(key, mapped_type())));
+			}
 
-			//const_iterator	lower_bound(key_type const &key) const;
+			const_iterator	lower_bound(key_type const &key) const {
+				return (this->_tree.lower_bound(ft::make_pair(key, mapped_type())));
+			}
 
-			//iterator	upper_bound(key_type const &key);
+			iterator	upper_bound(key_type const &key) {
+				return (this->_tree.upper_bound(ft::make_pair(key, mapped_type())));
+			}
 
-			//const_iterator	upper_bound(key_type const &key) const;
+			const_iterator	upper_bound(key_type const &key) const {
+				return (this->_tree.upper_bound(ft::make_pair(key, mapped_type())));
+			}
 
-			//pair<iterator, iterator>	equal_range(key_type const &key);
+			pair<iterator, iterator>	equal_range(key_type const &key) {
+				iterator it = upper_bound(key);
+				iterator ite = lower_bound(key);
+				return (ft::make_pair<iterator, iterator>(ite, it));
+			}
 
-			//pair<const_iterator, const_iterator>	equal_range(key_type const &key) const;
+			pair<const_iterator, const_iterator>	equal_range(key_type const &key) const {
+				const_iterator it = upper_bound(key);
+				const_iterator ite = lower_bound(key);
+				return (ft::make_pair<const_iterator, const_iterator>(ite, it));
+			}
 
 			void	print(void) {
 				this->_tree.print();
@@ -221,13 +256,48 @@ namespace ft {
 
 	template <typename Key, typename T, typename Compare, typename Allocator>
 	bool	operator==(map<Key, T, Compare, Allocator> const &lhs,
-	map<Key, T, Compare, Allocator> const &rhs);
-
+	map<Key, T, Compare, Allocator> const &rhs) {
+		if (lhs.size() != rhs.size())
+			return (false);
+		return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+	}
 
 	template <typename Key, typename T, typename Compare, typename Allocator>
 	bool	operator<(map<Key, T, Compare, Allocator> const &lhs,
-	map<Key, T, Compare, Allocator> const &rhs);
+	map<Key, T, Compare, Allocator> const &rhs) {
+		return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));
+	}
 
+	template <typename Key, typename T, typename Compare, typename Allocator>
+	bool	operator!=(map<Key, T, Compare, Allocator> const &lhs,
+	map<Key, T, Compare, Allocator> const &rhs) {
+		return (!(lhs == rhs));
+	}
+
+	template <typename Key, typename T, typename Compare, typename Allocator>
+	bool	operator>(map<Key, T, Compare, Allocator> const &lhs,
+	map<Key, T, Compare, Allocator> const &rhs) {
+		return (rhs < lhs);
+	}
+
+	template <typename Key, typename T, typename Compare, typename Allocator>
+	bool	operator<=(map<Key, T, Compare, Allocator> const &lhs,
+	map<Key, T, Compare, Allocator> const &rhs) {
+		return (!(rhs < lhs));
+	}
+
+	template <typename Key, typename T, typename Compare, typename Allocator>
+	bool	operator>=(map<Key, T, Compare, Allocator> const &lhs,
+	map<Key, T, Compare, Allocator> const &rhs) {
+		return (!(lhs < rhs));
+	}
+
+// specialized algorithm
+
+	template <class Key, class T, class Compare, class Allocator>
+	void swap(map<Key,T,Compare,Allocator> &lhs, map<Key,T,Compare,Allocator> &rhs) {
+		lhs.swap(rhs);
+	}
 }
 
 #endif

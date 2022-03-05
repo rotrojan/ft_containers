@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/17 22:49:48 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/02/22 19:12:37 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/05 17:38:07 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ namespace ft {
 				return (false);
 			else if (comp(*first1, *first2) == true)
 				return (true);
-			++first1++;
-			++first2++;
+			++first1;
+			++first2;
 		}
 		return (first2 != last2);
 	}
