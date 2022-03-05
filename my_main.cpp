@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/27 13:42:08 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/03 23:41:34 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/04 21:33:20 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 // #include <functional>
 // using namespace ft;
 
@@ -34,7 +35,11 @@ int main(void) {
 	// for (; it != ite; it++) {
 		// std::cout << *it << std::endl;
 	// }
-	ft::map<int, int> map;
+	ft::map<int, int> ref_map;
+	for (int i = 0; i < 10; ++i)
+		ref_map.insert(ft::make_pair<int, int>(i, i * 2));
+	ref_map.print();
+	ft::map<int, int> map(ref_map.begin(), ref_map.end());
 	// ft::pair<int, int> p1 = ft::make_pair<int, int>(1, 42);
 	// ft::pair<int, int> p2 = ft::make_pair<int, int>(54, 42);
 	// ft::pair<int, int> p3 = ft::make_pair<int, int>(23, 42);
@@ -42,7 +47,7 @@ int main(void) {
 	// ft::pair<int, int> p5 = ft::make_pair<int, int>(34, 42);
 	// ft::pair<int, int> p6 = ft::make_pair<int, int>(6, 42);
 	// ft::pair<int, int> p7 = ft::make_pair<int, int>(42, 42);
-	map.insert(ft::make_pair<int, int>(1, 42));
+	// map.insert(ft::make_pair<int, int>(1, 42));
 	// map.insert(p2);
 	// map.insert(p3);
 	// map.insert(p4);
@@ -52,8 +57,8 @@ int main(void) {
 	// ft::map<int, int>::const_iterator it = map.begin();
 	// std::cout << *it << std::endl;
 	// (void)it;
-	map.clear();
-	// map.print();
+	// map.clear();
+	map.print();
 	// std::cout << p << std::endl;
 	return (0);
 }
