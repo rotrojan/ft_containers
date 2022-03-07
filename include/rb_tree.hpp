@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/05 21:49:44 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/07 00:49:09 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -338,24 +338,22 @@ namespace ft {
 			}
 
 			ft::pair<iterator, bool>	insert(value_type val, iterator hint) {
-				node_ptr new_node = this->_new_node(val);
 				node_ptr prev = this->_nil;
-				node_ptr current;
-				if (hint.current != this->_nil && this->_compare(hint.current->data, val) == true)
-					current = hint.current;
-				else
+				node_ptr current = hint.current;
+				if (hint.current == this->_nil
+					|| this->_compare(val, hint.current->left->data) == false
+					|| this->_compare(hint.current->right->data, val) == false)
 					current = this->_root;
 				while (current != this->_nil) {
 					prev = current;
-					if (this->_compare(new_node->data, current->data))
+					if (this->_compare(val, current->data))
 						current = current->left;
-					else if (this->_compare(current->data ,new_node->data))
+					else if (this->_compare(current->data, val))
 						current = current->right;
-					else {
-						this->_delete_node(new_node);
+					else
 						return (ft::make_pair(iterator(current, this->_root, this->_nil), false));
-					}
 				}
+				node_ptr new_node = this->_new_node(val);
 				new_node->parent = prev;
 				if (prev == this->_nil)
 					this->_root = new_node;
@@ -363,7 +361,9 @@ namespace ft {
 					prev->left = new_node;
 				else
 					prev->right = new_node;
-				this->_fix_insert(new_node);
+				node_ptr fix_node = this->_new_node(new_node->data);
+				this->_fix_insert(fix_node);
+				this->_delete_node(fix_node);
 				++this->_size;
 				return (ft::make_pair(iterator(new_node, this->_root, this->_nil), true));
 			}
@@ -629,7 +629,6 @@ namespace ft {
 				else
 					to_cut->parent->right = to_connect;
 				to_connect->parent = to_cut->parent;
-				// this->_delete_node(to_cut);
 			}
 
 			void	_clear(node_ptr node) {
