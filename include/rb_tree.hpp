@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/07 00:49:09 by bigo             ###   ########.fr       */
+/*   Updated: 2022/03/07 22:56:14 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ namespace ft {
 ////////////////////////////////////////////////////////////////////////////////
 
 	template <typename T, typename Node>
-	class rb_treeIterator {
+	class rb_tree_constIterator {
 
 		public:
 			typedef T value_type;
@@ -82,27 +82,27 @@ namespace ft {
 
 			node_ptr current;
 
-		private:
+		protected:
 			node_ptr _root;
 			node_ptr _nil;
 
 		public:
-			rb_treeIterator(void)
+			rb_tree_constIterator(void)
 			: current(NULL), _root(NULL), _nil(NULL) {
 			}
 
-			rb_treeIterator(node_ptr node, node_ptr root, node_ptr nil)
+			rb_tree_constIterator(node_ptr node, node_ptr root, node_ptr nil)
 			: current(node), _root(root), _nil(nil) {
 			}
 
-			rb_treeIterator(rb_treeIterator const &rbtit)
+			rb_tree_constIterator(rb_tree_constIterator const &rbtit)
 			: current(rbtit.current), _root(rbtit._root), _nil(rbtit._nil) {
 			}
 
-			~rb_treeIterator(void) {
+			~rb_tree_constIterator(void) {
 			}
 
-			rb_treeIterator	&operator=(rb_treeIterator const &rhs) {
+			rb_tree_constIterator	&operator=(rb_tree_constIterator const &rhs) {
 				if (this != &rhs) {
 					this->current = rhs.current;
 					this->_root = rhs._root;
@@ -111,50 +111,42 @@ namespace ft {
 				return (*this);
 			}
 
-			operator	rb_treeIterator<value_type const, Node >(void) const {
-				return (rb_treeIterator<value_type const, Node>(this->current, this->_root, this->_nil));
+			operator	rb_tree_constIterator<value_type const, Node>(void) const {
+				return (rb_tree_constIterator<value_type const, Node>(this->current, this->_root, this->_nil));
 			}
 
 // forward iterator requirements
 
-			rb_treeIterator	&operator++(void) {
+			rb_tree_constIterator	&operator++(void) {
 				this->current = this->_next(this->current);
 				return (*this);
 			}
 
-			rb_treeIterator	operator++(int) {
-				rb_treeIterator tmp(this->current, this->_root, this->_nil);
+			rb_tree_constIterator	operator++(int) {
+				rb_tree_constIterator tmp(this->current, this->_root, this->_nil);
 				this->current = this->_next(this->current);
 				return (tmp);
-			}
-
-			pointer	operator->(void) {
-				return (&this->operator*());
 			}
 
 			const_pointer	operator->(void) const {
 				return (&this->operator*());
 			}
 
-			reference	operator*(void) {
-				return (this->current->data);
-			}
-
 			const_reference	operator*(void) const {
 				return (this->current->data);
 			}
 
-			bool	operator==(rb_treeIterator const &rhs) {
+			bool	operator==(rb_tree_constIterator const &rhs) {
 				return (this->current == rhs.current);
 			}
 
-			bool	operator!=(rb_treeIterator const &rhs) {
+			bool	operator!=(rb_tree_constIterator const &rhs) {
 				return (this->current != rhs.current);
 			}
 
 // bidirectional iterator requirements
 
-			rb_treeIterator	&operator--(void) {
+			rb_tree_constIterator	&operator--(void) {
 				if (this->current == this->_nil)
 					this->current = this->_max(this->_root);
 				else
@@ -162,8 +154,8 @@ namespace ft {
 				return (*this);
 			}
 
-			rb_treeIterator	operator--(int) {
-				rb_treeIterator tmp(this->current, this->_root, this->_nil);
+			rb_tree_constIterator	operator--(int) {
+				rb_tree_constIterator tmp(this->current, this->_root, this->_nil);
 				if (this->current == this->_nil)
 					this->current = this->_max(this->_root);
 				else
@@ -208,6 +200,53 @@ namespace ft {
 					parent = parent->parent;
 				}
 				return (parent);
+			}
+
+	};
+
+	template <typename T, typename Node>
+	class rb_treeIterator: public rb_tree_constIterator<T, Node> {
+
+		public:
+			typedef T value_type;
+			typedef T * pointer;
+			typedef T const * const_pointer;
+			typedef T & reference;
+			typedef T const & const_reference;
+			typedef std::bidirectional_iterator_tag iterator_category;
+			typedef std::ptrdiff_t difference_type;
+			typedef Node * node_ptr;
+
+			rb_treeIterator(void)
+			: rb_tree_constIterator<T, Node>::current(NULL), rb_tree_constIterator<T, Node>::_root(NULL), rb_tree_constIterator<T, Node>::_nil(NULL) {
+			}
+
+			rb_treeIterator(node_ptr node, node_ptr root, node_ptr nil)
+			: current(node), _root(root), _nil(nil) {
+			}
+
+			rb_treeIterator(rb_treeIterator const &rbtit)
+			: current(rbtit.current), _root(rbtit._root), _nil(rbtit._nil) {
+			}
+
+			~rb_treeIterator(void) {
+			}
+
+			rb_treeIterator	&operator=(rb_treeIterator const &rhs) {
+				if (this != &rhs) {
+					this->current = rhs.current;
+					this->_root = rhs._root;
+					this->_nil = rhs._nil;
+				}
+				return (*this);
+			}
+
+			pointer	operator->(void) {
+				return (&this->operator*());
+			}
+
+			reference	operator*(void) {
+				return (this->current->data);
 			}
 
 	};
