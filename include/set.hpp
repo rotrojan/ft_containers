@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/07 22:45:03 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/09 23:50:15 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,21 +32,26 @@ namespace ft {
 			typedef Compare key_compare;
 			typedef Compare value_compare;
 			typedef Allocator allocator_type;
-			typedef rb_treeIterator<value_type, rb_node<value_type> > iterator;
-			typedef rb_tree_constIterator<value_type const, rb_node<value_type> > const_iterator;
+
+		private:
+			typedef rb_tree<value_type, allocator_type, value_compare> tree_type;
+
+		public:
+			typedef typename tree_type::const_iterator iterator;
+			typedef typename tree_type::const_iterator const_iterator;
 			typedef typename Allocator::pointer pointer;
 			typedef typename Allocator::const_pointer const_pointer;
 			typedef typename Allocator::reference reference;
 			typedef typename Allocator::const_reference const_reference;
 			typedef std::size_t size_type;
 			typedef std::ptrdiff_t difference_type;
-			typedef ft::reverse_iterator<iterator> reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+			typedef typename tree_type::const_reverse_iterator reverse_iterator;
+			typedef typename tree_type::const_reverse_iterator const_reverse_iterator;
 
 		private:
 			allocator_type _alloc;
 			key_compare _key_comp;
-			rb_tree<value_type, allocator_type, value_compare> _tree;
+			tree_type _tree;
 
 		public:
 			explicit set(key_compare const &comp = key_compare(), allocator_type const alloc = allocator_type())
@@ -57,14 +62,12 @@ namespace ft {
 			set(InputIterator first, InputIterator last,
 			key_compare const &comp = key_compare(), allocator_type const alloc = allocator_type())
 			: _alloc(alloc), _key_comp(comp), _tree(_alloc, _key_comp) {
-				for (; first != last; ++first)
-					this->insert(*first);
+				this->insert(first, last);
 			}
 
 			set(set<key_type, key_compare, allocator_type> const &s)
 			: _alloc(s._alloc), _key_comp(s._key_comp), _tree(_alloc, _key_comp) {
-				for (const_iterator it = s.begin(), ite = s.end(); it != ite; ++it)
-					this->insert(*it);
+				this->insert(s.begin(), s.end());
 			}
 
 			~set() {
@@ -131,7 +134,7 @@ namespace ft {
 // modifiers
 
 			ft::pair<iterator, bool>	insert(value_type const &p) {
-				return (this->_tree.insert(p, this->end()));
+				return (this->_tree.insert(p, this->_tree.end()));
 			}
 
 			iterator	insert(iterator position, value_type const &p) {
@@ -141,7 +144,7 @@ namespace ft {
 			template <typename InputIterator>
 			void	insert(InputIterator first, InputIterator last) {
 				for (; first != last; ++first)
-					this->_tree.insert(*first, this->end());
+					this->_tree.insert(*first, this->_tree.end());
 			}
 
 			void	erase(iterator position) {
