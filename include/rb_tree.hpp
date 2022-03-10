@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/10 02:54:54 by bigo             ###   ########.fr       */
+/*   Updated: 2022/03/10 18:13:45 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,8 @@ namespace ft {
 				return (*this);
 			}
 
-			operator	rb_tree_iterator<value_type const, Node const>(void) const {
-				return (rb_tree_iterator<value_type const, Node const>(this->current, this->_root, this->_nil));
+			operator	rb_tree_iterator<value_type const, Node>(void) const {
+				return (rb_tree_iterator<value_type const, Node>(this->current, this->_root, this->_nil));
 			}
 
 // forward iterator requirements
@@ -144,11 +144,11 @@ namespace ft {
 				return (this->current->data);
 			}
 
-			bool	operator==(rb_tree_iterator const &rhs) {
+			bool	operator==(rb_tree_iterator const &rhs) const {
 				return (this->current == rhs.current);
 			}
 
-			bool	operator!=(rb_tree_iterator const &rhs) {
+			bool	operator!=(rb_tree_iterator const &rhs) const {
 				return (this->current != rhs.current);
 			}
 
@@ -209,7 +209,6 @@ namespace ft {
 				}
 				return (parent);
 			}
-
 	};
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +225,7 @@ namespace ft {
 			typedef typename Allocator::template rebind<rb_node<value_type> >::other allocator_type;
 			typedef Compare compare_type;
 			typedef rb_tree_iterator<T, rb_node<T> > iterator;
-			typedef rb_tree_iterator<T const, rb_node<T> const> const_iterator;
+			typedef rb_tree_iterator<T const, rb_node<T> > const_iterator;
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 			typedef std::size_t size_type;
@@ -264,9 +263,8 @@ namespace ft {
 			rb_tree	&operator=(rb_tree const &rhs) {
 				if (this != &rhs) {
 					this->clear();
-					for (typename ft::rb_tree<value_type, allocator_type, compare_type>::const_iterator
-					it = rhs.begin(), ite = rhs.end(); it != ite; ++it)
-						this->insert(*it, this->end());
+					for (const_iterator it = rhs.begin(), ite = rhs.end(); it != ite; ++it)
+						this->insert(this->end(), *it);
 				}
 				return (*this);
 			}
@@ -337,7 +335,7 @@ namespace ft {
 				return (current);
 			}
 
-			ft::pair<iterator, bool>	insert(value_type val, const_iterator hint) {
+			ft::pair<iterator, bool>	insert(const_iterator hint, value_type val) {
 				node_ptr prev = this->_nil;
 				node_ptr  current;
 				if (hint.current == this->_nil
@@ -347,7 +345,7 @@ namespace ft {
 						&& this->_compare(val, hint.current->parent->data) == true))
 					current = this->_root;
 				else
-					current = this->_search(*hint);
+					current = hint.current;
 				while (current != this->_nil) {
 					prev = current;
 					if (this->_compare(val, current->data))

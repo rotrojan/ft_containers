@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/09 20:35:48 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/10 18:13:40 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,17 +158,17 @@ namespace ft {
 // modifiers
 
 			ft::pair<iterator, bool>	insert(value_type const &p) {
-				return (this->_tree.insert(p, this->end()));
+				return (this->_tree.insert(this->end(), p));
 			}
 
 			iterator	insert(iterator position, value_type const &p) {
-				return (this->_tree.insert(p, position).first);
+				return (this->_tree.insert(position, p).first);
 			}
 
 			template <typename InputIterator>
 			void	insert(InputIterator first, InputIterator last) {
 				for (; first != last; ++first)
-					this->_tree.insert(*first, this->end());
+					this->_tree.insert(this->end(), *first);
 			}
 
 			void	erase(iterator position) {

@@ -6,7 +6,7 @@
 #    By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 21:06:11 by rotrojan          #+#    #+#              #
-#    Updated: 2022/02/15 14:18:51 by rotrojan         ###   ########.fr        #
+#    Updated: 2022/03/10 23:29:15 by rotrojan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,12 +33,14 @@ SANITIZE = 0
 ifeq ($(shell test -f $(OBJS_DIR)/sanitize1; echo $$?), 0)
 	SANITIZE = 1
 endif
+CXXFLAGS+=-DTESTED_NAMESPACE=$(TESTED_NAMESPACE)
 ifeq ($(DEBUG), 1)
 	CXXFLAGS += -g3
 endif
 ifeq ($(SANITIZE), 1)
 	CXXFLAGS += -fsanitize=address
 endif
+NAME = $(TESTED_NAMESPACE)_containers
 
 # Colors ans escape sequences
 ESC_SEQ = \033[
@@ -82,7 +84,21 @@ endef
 
 vpath %.cpp ./ $(shell find $(SRCS_DIR) -type d)
 
+ifeq ($(MAKELEVEL), 0)
+all:
+	@$(MAKE) TESTED_NAMESPACE=ft
+	@$(MAKE) TESTED_NAMESPACE=std
+	@echo
+	@echo ft_containers
+	@time -p ./ft_containers > ft_containers_output
+	@echo
+	@echo std_containers
+	@time -p ./std_containers > std_containers_output
+	@echo
+	@diff ft_containers_output std_containers_output && echo no diff detected
+else
 all: display_variables $(NAME)
+endif
 
 $(NAME): $(OBJS) | display_variables
 	@$(PRINT_INTERLINE)
@@ -90,7 +106,7 @@ $(NAME): $(OBJS) | display_variables
 		&& printf 'linking object files' \
 		&& printf '$(ESC_STOP)' 1>&2 \
 		&& printf '\n'
-	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS) $(LDLIBS)
+	@$(CXX) $(CXXFLAGS) -DTESTED_NAMESPACE=$(TESTED_NAMESPACE) $(OBJS) -o $(NAME) $(LDFLAGS) $(LDLIBS)
 	@$(PRINT_INTERLINE)
 	@printf '$(YELLOW)$(BOLD)' 1>&2 \
 		&& printf '%s' '$@' \
@@ -100,7 +116,7 @@ $(NAME): $(OBJS) | display_variables
 		&& printf '\n'
 	@$(PRINT_INTERLINE)
 
-$(OBJS): $(OBJS_DIR)/%.o: %.cpp $(OBJS_DIR)/debug$(DEBUG) $(OBJS_DIR)/sanitize$(SANITIZE) | $(OBJS_DIR)
+$(OBJS): $(OBJS_DIR)/%.o: %.cpp $(OBJS_DIR)/debug$(DEBUG) $(OBJS_DIR)/sanitize$(SANITIZE) $(OBJS_DIR)/$(TESTED_NAMESPACE)| $(OBJS_DIR)
 # This retrieves the number of files to be compiled / updated
 # The $(NO_RECURS) variable prevents an infinite loop
 ifeq ($(NO_RECURS), 0)
@@ -140,6 +156,10 @@ $(OBJS_DIR)/sanitize$(SANITIZE): | $(OBJS_DIR)
 	@$(RM) $(OBJS_DIR)/sanitize0 $(OBJS_DIR)/sanitize1
 	@touch $@
 
+$(OBJS_DIR)/$(TESTED_NAMESPACE):
+	@$(RM) $(OBJS_DIR)/ft $(OBJS_DIR)/std
+	@touch $(OBJS_DIR)/$(TESTED_NAMESPACE)
+
 display_variables:
 	@if [ '$(VARIABLES_PRINTED)' -eq '0' ]; then \
 		$(PRINT_INTERLINE); \
@@ -173,10 +193,10 @@ clean:
 	@printf '%s/ removed\n' '$(OBJS_DIR)'
 
 fclean: clean
-	@$(RM) $(NAME) $(BONUS)
-	@printf '%s removed\n' '$(NAME)'
+	@$(RM) ft_containers std_containers $(BONUS)
+	@printf 'binaries removed\n'
 
 re: fclean all
 
 -include $(DEPENDENCIES)
-.PHONY: all clean fclean re display_variables
+.PHONY: all clean fclean re display_variables test
