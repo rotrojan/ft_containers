@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/22 20:06:40 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/09 23:50:15 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/10 02:25:22 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ namespace ft {
 			}
 
 			void	erase(iterator position) {
-				this->_tree.erase(position);
+				this->_tree.erase(*position);
 			}
 
 			size_type	erase(key_type const &key) {
@@ -162,7 +162,7 @@ namespace ft {
 				while (first != last) {
 					it = first;
 					++first;
-					this->_tree.erase(it);
+					this->_tree.erase(*it);
 				}
 			}
 
@@ -207,11 +207,11 @@ namespace ft {
 			}
 
 			iterator	upper_bound(key_type const &key) {
-				return (this->_tree.lower_bound(key));
+				return (this->_tree.upper_bound(key));
 			}
 
 			const_iterator	upper_bound(key_type const &key) const {
-				return (this->_tree.upper_bound(key));
+				return (this->_tree.lower_bound(key));
 			}
 
 			pair<iterator, iterator>	equal_range(key_type const &key) {
@@ -221,7 +221,7 @@ namespace ft {
 			}
 
 			pair<const_iterator, const_iterator>	equal_range(key_type const &key) const {
-				const_iterator it = upper_bound(key);
+				const_iterator it = lower_bound(key);
 				const_iterator ite = lower_bound(key);
 				return (ft::make_pair<const_iterator, const_iterator>(ite, it));
 			}

@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/09 23:50:44 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/10 02:54:54 by bigo             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,12 +339,15 @@ namespace ft {
 
 			ft::pair<iterator, bool>	insert(value_type val, const_iterator hint) {
 				node_ptr prev = this->_nil;
-				// node_ptr current = hint.current;
-				// if (hint.current == this->_nil
-					// || this->_compare(val, hint.current->left->data) == false
-					// || this->_compare(hint.current->right->data, val) == false)
-				(void)hint;
-				node_ptr current = this->_root;
+				node_ptr  current;
+				if (hint.current == this->_nil
+					|| !(this->_compare(val, hint.current->right->data) == true
+						&& this->_compare(hint.current->parent->data, val) == true)
+					|| !(this->_compare(hint.current->left->data, val) == true
+						&& this->_compare(val, hint.current->parent->data) == true))
+					current = this->_root;
+				else
+					current = this->_search(*hint);
 				while (current != this->_nil) {
 					prev = current;
 					if (this->_compare(val, current->data))
