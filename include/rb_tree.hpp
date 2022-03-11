@@ -6,7 +6,7 @@
 /*   By: rotrojan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 19:00:00 by rotrojan          #+#    #+#             */
-/*   Updated: 2022/03/10 18:13:45 by rotrojan         ###   ########.fr       */
+/*   Updated: 2022/03/11 01:32:25 by rotrojan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,6 +364,8 @@ namespace ft {
 				else
 					prev->right = new_node;
 				this->_fix_insert(new_node);
+				// if (current == this->_nil)
+					// return (ft::make_pair(this->end(), false));
 				++this->_size;
 				return (ft::make_pair(iterator(new_node, this->_root, this->_nil), true));
 			}
